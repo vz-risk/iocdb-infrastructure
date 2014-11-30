@@ -7,3 +7,5 @@ long_description 'Installs/Configures iocdb-infrastructure'
 version          '0.1.0'
 
 depends 'hostnames'
+depends 'java'
+depends 'elasticsearch'

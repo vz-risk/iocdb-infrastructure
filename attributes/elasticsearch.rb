@@ -1,0 +1,1 @@
+default[:elasticsearch][:cluster] = 'greenridge'
