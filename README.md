@@ -28,6 +28,7 @@ Tested in terremark vcloud using ubuntu 1404 images.
 ### General playbook
 - Deploy a workstation with chefdk
 - On the workstation: git the iocdb-infrastructure repo
+- cd iocdb-infrastructure; berks install
 - From the vcloud console: "import" a template image
 - Log into the new node (using the dynamically allocated IP detected in the 
 vcloud console) and get the mac address.
