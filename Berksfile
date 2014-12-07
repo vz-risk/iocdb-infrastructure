@@ -5,3 +5,4 @@ metadata
 cookbook 'hostnames'
 cookbook 'java'
 cookbook 'elasticsearch'
+cookbook 'python'
