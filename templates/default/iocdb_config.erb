@@ -1,0 +1,24 @@
+import iocdb.config
+import iocdb.default
+import iocdb.session_managers.es
+
+elasticsearch_config = iocdb.config.Configuration(
+    iocdb.session_managers.es.ElasticSearch,
+    {'hosts':[
+        <% node[:iocdb][:eshosts].each do |host| -%>
+        {'host':'<%= host %>'}, 
+        <% end -%>
+    ]})
+
+<% if node[:iocdb][:repository] -%>
+repository = '<%= node[:iocdb][:repository] %>'
+<% end -%>
+
+
+<% if node[:iocdb][:message_handlers] -%>
+message_handlers = [
+  <% node[:iocdb][:message_handlers].each do |handler| -%>
+  <%= handler %>
+  <% end -%>
+]
+<% end -%>

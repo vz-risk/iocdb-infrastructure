@@ -17,3 +17,7 @@ python_pip 'iocdb' do
   package_name 'git+git@github.com:vz-risk/iocdb.git#egg=iocdb'
   options '-e'
 end
+
+template '/src/iocdb/iocdb/data/iocdb_config.py' do
+  source 'iocdb_config.erb'
+end
