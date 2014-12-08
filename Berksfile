@@ -4,7 +4,7 @@ metadata
 
 cookbook 'hostnames'
 cookbook 'java'
-cookbook 'elasticsearch'
+cookbook 'elasticsearch', git: 'git@github.com:elasticsearch/cookbook-elasticsearch.git'
 cookbook 'python'
 cookbook 'rabbitmq'
 cookbook 'git'
