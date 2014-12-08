@@ -30,7 +30,7 @@ knife solo prepare <NODE_IP> -N <NODE_NAME> --bootstrap-version 11
 ```
 {
   "run_list": [
-    "iocdb-infrastruture::rabbitmq",
+    "iocdb-infrastructure::rabbitmq",
     "iocdb-infrastructure::iocdb-worker"
   ]
 }
