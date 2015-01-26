@@ -13,7 +13,7 @@ Tested in terremark vcloud using ubuntu 1404 images.
 - install the knife solo plugin
 ```
 /opt/chefdk/embedded/bin/gem install knife-solo
-knife solo init
+knife solo init .
 ```
 - git the iocdb-infrastructure repo
 - cd iocdb-infrastructure; berks install
