@@ -1,2 +1,2 @@
-default['set_fqdn'] = '*.greenridge.local'
+default['set_fqdn'] = '*.vcic.local'
 default[:iocdb][:eshosts] = []
