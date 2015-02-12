@@ -23,9 +23,9 @@ knife solo init .
 - allocate an IP to the new node
 - deploy chef to the new node
 ```
-knife solo prepare <NODE_IP> -N <NODE_NAME> --bootstrap-version 11
+knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11
 ```
-- configure the new node found in `nodes/<NODE_NAME>`
+- configure the new node found in `nodes/$NODE_NAME`
 (with at least a run\_list). eg:
 ```
 {
@@ -37,6 +37,6 @@ knife solo prepare <NODE_IP> -N <NODE_NAME> --bootstrap-version 11
 ```
 - provision the new node
 ```
-knife solo cook <NODE_IP> -N <NODE_NAME>
+knife solo cook $NODE_IP -N $NODE_NAME
 ```
 
