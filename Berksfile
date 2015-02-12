@@ -8,3 +8,4 @@ cookbook 'elasticsearch', git: 'git@github.com:elasticsearch/cookbook-elasticsea
 cookbook 'python'
 cookbook 'rabbitmq'
 cookbook 'git'
+cookbook 'hadoop'
