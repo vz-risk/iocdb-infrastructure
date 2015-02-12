@@ -20,3 +20,4 @@ node.default[:elasticsearch][:data][:devices]['/dev/sdb1'] = {
 node.default[:elasticsearch][:path][:data] = '/usr/local/var/data/elasticsearch/disk1'
 
 include_recipe 'iocdb-infrastructure::elasticsearch'
+include_recipe 'elasticsearch::data'
