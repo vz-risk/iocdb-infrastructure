@@ -33,7 +33,7 @@ end
 # add init script for celery beat
 cookbook_file "celery-beat" do
   path '/etc/init.d/celery-beat'
-  backup 'false'
+  backup 0
   owner 'root'
   group 'root'
   mode '0755'
@@ -43,7 +43,7 @@ end
 # add init script for celery worker
 cookbook_file "celery-worker" do
   path '/etc/init.d/celery-worker'
-  backup 'false'
+  backup 0
   owner 'root'
   group 'root'
   mode '0755'
