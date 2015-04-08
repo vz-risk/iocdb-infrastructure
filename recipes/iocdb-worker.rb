@@ -30,6 +30,22 @@ directory "/var/data/log" do
   mode '0775'
 end
 
+directory "/var/data/incoming" do
+  owner 'iocdb_prov'
+  group 'iocdb_prov'
+  mode '0775'
+end
+
+# Make iocdb dir accessible.  On some hosts there is an iocdb account (owner iocdb), others just a dir (owner root).  
+directory "/home/iocdb" do
+  group 'iocdb_prov'
+  mode '0777'
+end
+
+link "/home/iocdb/incoming" do
+  to "/var/data/incoming"
+end
+
 # add init script for celery beat
 cookbook_file "celery-beat" do
   path '/etc/init.d/celery-beat'
