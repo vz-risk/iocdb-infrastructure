@@ -12,7 +12,7 @@ include_recipe 'python'
 #-------------------------------------------------------------------------------------------
 execute 'add host iocdb-staging to known hosts if not already there' do
   command 'ssh iocdb_prov@iocdb-staging -o StrictHostKeyChecking=no'
-  returns 1
+  returns 0
 end
 
 python_pip 'mapping-tools' do
