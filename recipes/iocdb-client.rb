@@ -20,6 +20,3 @@ template '/src/iocdb/iocdb/data/settings.yaml' do
   source "host-#{node['hostname']}/settings.yaml"
 end
 
-template '/src/iocdb/iocdb/data/iocdb_config.py' do
-  source "host-#{node['hostname']}/iocdb_config.erb"
-end
