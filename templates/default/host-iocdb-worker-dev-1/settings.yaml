@@ -1,0 +1,36 @@
+# Warning: This config file was created by chef.  Changes are temporary and will
+#          be overwritten at next install.  
+#
+#          To make changes permanent modify
+#            iocdb-infrastructure.git 
+#              templates/default/host-<hostname>/iocdb_config.erb
+#              attributes/iocdb.rb
+
+debug: true
+message_handlers: [elasticsearch]
+elasticsearch_config:
+    hosts:  <%= node[:iocdb][:eshosts][:dev] %>
+repository: 'elasticsearch'
+logging:
+    version: 1
+    handlers:
+        eslogfile:
+            class: 'logging.handlers.RotatingFileHandler'
+            filename: '/var/data/log/es.log'
+            maxBytes: 1000000
+            backupCount: 5
+        estracefile:
+            class: 'logging.handlers.RotatingFileHandler'
+            filename: '/var/data/log/estrace.log'
+            maxBytes: 1000000
+            backupCount: 5
+    loggers':
+        elasticsearch':
+            level': 'INFO'
+            propagate': False
+            handlers': ['eslogfile']
+        elasticsearch.trace':
+            level': 'INFO'
+            propagate': False
+            handlers': ['estracefile']
+
