@@ -16,6 +16,12 @@ python_pip 'iocdb' do
   options '-e'
 end
 
+execute "install requirements" do
+  cwd '/src/iocdb'
+  user "root"
+  command "pip install -r /src/iocdb/requirements.txt"
+end
+
 template '/src/iocdb/iocdb/data/settings.yaml' do
   source "host-#{node['hostname']}/settings.yaml"
 end
