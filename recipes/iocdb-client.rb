@@ -10,6 +10,22 @@ execute 'add host iocdb-staging to known hosts if not already there' do
   returns 0
 end
 
+apt_package "python-lxml" do
+  action :install
+end
+apt_package "libxml2-dev" do
+  action :install
+end
+apt_package "libxslt1-dev" do
+  action :install
+end
+apt_package "python-dev" do
+  action :install
+end
+apt_package "zlib1g-dev" do
+  action :install
+end
+
 python_pip 'iocdb' do
   package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@dev-ci#egg=iocdb'
 #  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@origin/master#egg=iocdb'
