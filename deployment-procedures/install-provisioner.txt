@@ -1,0 +1,9 @@
+#----------------------------------------------------------------------------
+# Used to install the provisioner the first time .  Do this one time only 
+# then follow 'update-provisioner.txt' from then on.
+#----------------------------------------------------------------------------
+
+Full procedure is here:
+
+https://confluence.vzbi.com/pages/viewpage.action?title=SSAPI+Team+-+IOCDB+Environment+-+Environment+Setup&spaceKey=PRO#SSAPITeam-IOCDBEnvironment-EnvironmentSetup-DevelopmentEnvironmentSetup
+

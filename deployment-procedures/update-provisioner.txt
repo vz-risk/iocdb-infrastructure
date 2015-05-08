@@ -1,0 +1,69 @@
+#============================================================================
+# Used to update the provisioner.  Before the provisioner can install to any
+#   machines, an updated copy of the repositories from github should be 
+#   staged or updated to make the most current code available to the 
+#   provisioner.
+#
+#   <PROV-HOST>: (Provisioner host name)
+#     iocdb-prov               (prod)
+#     iocdb-prov-dev-1         (dev)
+#     iocdb-prov-qa-1          (qa)
+#============================================================================
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Option 1 - Update instructions (See option 2 to recreate)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# On the provisioning host.
+ssh <PROV-HOST>
+
+# Update each staged repo clone for the code being updated.  You will 
+#   need to enter your github account username and password when prompted.  
+
+cd /staged-repos/iocdb.git
+git fetch --all
+
+cd /staged-repos/iocdb-infrastructure.git
+git fetch --all
+
+cd /staged-repos/cookbook-elasticsearch.git
+git fetch --all
+
+cd /staged-repos/mapping-tools.git
+git fetch --all
+
+cd /staged-repos/query-tools.git
+git fetch --all
+
+# Update the recipes for the provisioner 
+cd /opt/iocdb_provisioner/iocdb-infrastructure
+git pull origin
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Option 2 - Recreate the repos
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# On the provisioning host.
+ssh <PROV-HOST>
+
+# Create a clone staging area
+sudo mkdir /staged-repos
+sudo chown iocdb_prov:iocdb_prov /staged-repos
+
+# Clone the repos needed for provisioning - Use mirror repositories as no 
+# development work should ever be done from these repository clones.  You 
+# will need to enter your github account username and password when 
+# prompted
+cd /staged-repos
+
+# new way (mirror the repos)
+git clone --mirror https://github.com/vz-risk/iocdb.git
+git clone --mirror https://github.com/vz-risk/iocdb-infrastructure.git
+git clone --mirror https://git@github.com/elasticsearch/cookbook-elasticsearch.git
+git clone --mirror https://github.com/vz-risk/mapping-tools.git
+git clone --mirror https://github.com/vz-risk/query-tools.git
+
+# If needed, to re-create the clone in the iocdb_infrastructure 
+#   repository from /staged-repos to the /iocdb_provisioner directory.
+cd /opt/iocdb_provisioner
+git clone ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb-infrastructure.git
