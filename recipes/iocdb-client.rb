@@ -38,7 +38,7 @@ end
 execute "chmod /src/iocdb to iocdb_prov" do
   cwd '/src/iocdb'
   user "root"
-  command "chmod -R iocdb_prov:iocdb_prov /src/iocdb"
+  command "chown -R iocdb_prov:iocdb_prov /src/iocdb"
 end
 
 template '/src/iocdb/iocdb/data/settings.yaml' do
