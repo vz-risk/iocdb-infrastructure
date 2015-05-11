@@ -25,6 +25,9 @@ end
 apt_package "zlib1g-dev" do
   action :install
 end
+apt_package "python-psycopg2" do
+  action :install
+end
 
 python_pip 'iocdb' do
   package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@dev-ci#egg=iocdb'
@@ -32,13 +35,19 @@ python_pip 'iocdb' do
   options '-e'
 end
 
-execute "install requirements" do
+execute "chmod /src/iocdb to iocdb_prov" do
   cwd '/src/iocdb'
   user "root"
-  command "pip install -r /src/iocdb/requirements.txt"
+  command "chmod -R iocdb_prov:iocdb_prov /src/iocdb"
 end
 
 template '/src/iocdb/iocdb/data/settings.yaml' do
   source "host-#{node['hostname']}/settings.yaml"
+end
+
+execute "install requirements" do
+  cwd '/src/iocdb'
+  user "root"
+  command "pip install -r /src/iocdb/requirements.txt"
 end
 
