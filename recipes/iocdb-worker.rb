@@ -36,28 +36,13 @@ directory "/var/data/incoming" do
   mode '0775'
 end
 
-%{CISCP iid iid/INCOMING-ALL-HOSTS iid/INCOMING-ALL-IP iid/INCOMING-ALL-URL iid/INCOMING-DGA Shadowserver support-intelligence support-intelligence/db4i support-intelligence/db4i-archive support-intelligence/dob support-intelligence/dob-archive support-intelligence/ip support-intelligence/ip-archive support-intelligence/ngtld support-intelligence/scripts-when-broke support-intelligence/url support-intelligence/url-archive VZW-Damballa} do |subdir_name|
+for subdir_name in [ "CISCP", "iid", "iid/INCOMING-ALL-HOSTS", "iid/INCOMING-ALL-IP", "iid/INCOMING-ALL-URL", "iid/INCOMING-DGA", "Shadowserver", "support-intelligence", "support-intelligence/db4i", "support-intelligence/db4i-archive", "support-intelligence/dob", "support-intelligence/dob-archive", "support-intelligence/ip", "support-intelligence/ip-archive", "support-intelligence/ngtld", "support-intelligence/scripts-when-broke", "support-intelligence/url", "support-intelligence/url-archive", "VZW-Damballa", "MSS", "MSS/archive" ] do
   directory "/var/data/incoming/#{subdir_name}" do
-    owner 'iocdb_prov'
-    group 'iocdb_prov'
-    mode '0775'
+    owner "iocdb_prov"
+    group "iocdb_prov"
+    mode "0777"
   end
 end
-
-
-
-  
-
-
- 
-
-
-
-MSS
-  archive
-
-
-
 
 # Make iocdb dir accessible.  On some hosts there is an iocdb account (owner iocdb), others just a dir (owner root).  
 directory "/home/iocdb" do
