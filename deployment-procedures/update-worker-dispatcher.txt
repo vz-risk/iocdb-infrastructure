@@ -30,7 +30,8 @@ ssh <PROV-HOST>
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <DEST-HOST> box
+# 1 Backup important directories and files on the <DEST-HOST> box and
+#   stop the celery worker, celery beat and rabbitmq server processes
 #------------------------------------------------------------------------
 
 # On the destination host
@@ -49,6 +50,15 @@ iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 
+# Stop the processes
+sudo service celery-beat stop
+sudo service celery-worker stop
+sudo service rabbitmq-server stop
+
+# Make sure they have stopped
+ps -ef | grep celery
+ps -ef | grep rabbit
+
 #------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
 #------------------------------------------------------------------------
@@ -64,18 +74,16 @@ export NODE_IP="<DEST-IP>"
 # 3 - Modify the recipes for the provisioner to tailor it to your install
 #------------------------------------------------------------------------
 
-# Verify the node file points to the correct ip and node name and it's runlist is for iocdb-cli.
-#  Note: If this is a new node, you will want to create a new node file as described in the 
-#        installation procedures.
-# 
+# Verify the node file points to the correct ip and node name and it's 
+#  runlist contains:
+#    "iocdb-infrastructure::rabbitmq",
+#    "iocdb-infrastructure::iocdb-worker"
 cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
 
-# Backup the existing node file (if it exists)
-cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json.orig
-
-# If this file doesn't yet exist, chef may not have yet been installed to 
-# the new machine.  Run the following command to bootstrap chef onto the new 
-# host and create the node file.
+# ONLY DO THIS IF THE FILE DOESN'T EXIST:
+#   If this file doesn't yet exist, chef may not have yet been installed  
+#   to the new machine.  Run the following command to bootstrap chef onto 
+#   the new host and create the node file.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
 knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/iocdb_nonprod_rsa
 
@@ -84,7 +92,8 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
 
 {
   "run_list": [
-    "iocdb-infrastructure::iocdb-client"
+    "iocdb-infrastructure::rabbitmq",
+    "iocdb-infrastructure::iocdb-worker"
   ],
   "automatic": {
     "ipaddress": "<DEST-IP>"
@@ -92,7 +101,7 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
 }
 
 #Set the branch name to <BRANCH_NAME>
-#  e.g. master, dev-ci, etc..
+#   e.g. master, dev-ci, etc..
 
 # edit the iocdb-client.rb file
 vi /opt/iocdb_provisioner/iocdb-infrastructure/recipes/iocdb-client.rb
@@ -117,9 +126,6 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_nonprod_rsa
   WARNING: Local role_path 'roles' does not exist
   WARNING: Local data_bag_path 'data_bags' does not exist
   WARNING: Local environment_path 'environments' does not exist
-
-# restore the original node file
-cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json.orig /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
 
 #------------------------------------------------------------------------
 # 5 - Configure the new host
@@ -154,11 +160,16 @@ iocdb --observable_values 1.1.1.1 --encoder summary | wc
 cd /var/data/log
 tail -f *
 
-# restart main processes in main terminal window while watching logs
+# Restart main processes in main terminal window while watching logs
 sudo service celery-beat stop
 sudo service celery-worker stop
 sudo service rabbitmq-server stop
 
+# Make sure they have stopped
+ps -ef | grep celery
+ps -ef | grep rabbit
+
+# start em up
 sudo service rabbitmq-server start
 sudo service celery-worker start
 sudo service celery-beat start
