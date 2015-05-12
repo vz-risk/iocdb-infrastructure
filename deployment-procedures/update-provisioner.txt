@@ -29,12 +29,6 @@ git fetch --all
 cd /staged-repos/cookbook-elasticsearch.git
 git fetch --all
 
-cd /staged-repos/mapping-tools.git
-git fetch --all
-
-cd /staged-repos/query-tools.git
-git fetch --all
-
 # Update the recipes for the provisioner 
 cd /opt/iocdb_provisioner/iocdb-infrastructure
 git pull origin
@@ -60,8 +54,6 @@ cd /staged-repos
 git clone --mirror https://github.com/vz-risk/iocdb.git
 git clone --mirror https://github.com/vz-risk/iocdb-infrastructure.git
 git clone --mirror https://git@github.com/elasticsearch/cookbook-elasticsearch.git
-git clone --mirror https://github.com/vz-risk/mapping-tools.git
-git clone --mirror https://github.com/vz-risk/query-tools.git
 
 # If needed, to re-create the clone in the iocdb_infrastructure 
 #   repository from /staged-repos to the /iocdb_provisioner directory.
