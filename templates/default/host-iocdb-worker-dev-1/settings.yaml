@@ -3,7 +3,7 @@
 #
 #          To make changes permanent modify
 #            iocdb-infrastructure.git 
-#              templates/default/host-<hostname>/iocdb_config.erb
+#              templates/default/host-<hostname>/settings.yaml.erb
 #              attributes/iocdb.rb
 
 debug: true

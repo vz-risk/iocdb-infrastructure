@@ -1,32 +1,31 @@
 #!/bin/sh
 #
-# /etc/init.d/celery-beat
+# /etc/init.d/celery-flower
 #
 ### BEGIN INIT INFO
-# Provides:          celery-beat
+# Provides:          celery-flower
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Manage celery beat
-# Description:       Manage celery beat
+# Short-Description: Manage celery flower service
+# Description:       Manage celery flower service
 ### END INIT INFO
 
 PROC=celery
-PROC_DESC="Celery Beat"
+PROC_DESC="Celery Flower"
 USER="iocdb_prov"
 START_DIR="/src/iocdb/iocdb"
-LOG_FILE="/var/data/log/celery-beat.log"
-PID_FILE="/var/data/run/celery-beat.pid"
+LOG_FILE_PREFIX="/var/data/log/"
 
 RETVAL=0
 
-START_COMMAND="celery -A dispatcher beat --config=/etc/celery-conf/celeryconfig.py -l DEBUG --logfile=$LOG_FILE --pidfile=$PID_FILE -s /var/data/run/beat-schedule --detach"
+START_COMMAND="celery -A dispatcher flower --logging=debug --log_file_prefix=$LOG_FILE_PREFIX"
 
 get_pid() {
-  if [ -f $PID_FILE ]; then
-    PID="`cat $PID_FILE`"
-  fi
+  PS=`ps aux | grep [c]elery | grep [f]lower1`
+  set -- $PS
+  pid = $2
 }
 
 check_proc_running() {

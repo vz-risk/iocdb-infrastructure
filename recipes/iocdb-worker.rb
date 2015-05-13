@@ -30,6 +30,19 @@ directory "/var/data/log" do
   mode '0775'
 end
 
+directory "/etc/celery-conf" do
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
+template '/etc/celery-conf/celeryconfig.py' do
+  source "host-#{node['hostname']}/celeryconfig.py.erb"
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
 directory "/var/data/incoming" do
   owner 'iocdb_prov'
   group 'iocdb_prov'
@@ -83,15 +96,3 @@ execute 'start beat' do
   command 'service celery-beat start'
   user 'root'
 end
-
-# TODO: I don't know why this command isn't working, just run manually
-#execute 'start workers' do
-  #command 'celery -A dispatcher multi start default --maxtasksperchild=1 -Q:default celery -l INFO --logfile=/var/log/iocdb-worker/%n.log --pidfile=/var/run/iocdb-worker/%n.pid'
-  #user 'iocdb_worker'
-#end
-
-# TODO: same as above
-#bash 'start beat' do
-#  command 'celery -A dispatcher beat -l INFO --logfile=/var/log/iocdb-worker/beat.log --pidfile=/var/run/iocdb-worker/beat.pid -s /var/run/iocdb-worker/beat-schedule --detach'
-#  user 'iocdb_worker'
-#end

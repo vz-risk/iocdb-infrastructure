@@ -1,0 +1,10 @@
+# Warning: This config file was created by chef.  Changes are temporary and will
+#          be overwritten at next install.  
+#
+#          To make changes permanent modify
+#            iocdb-infrastructure.git 
+#              templates/default/host-<hostname>/celeryconfig.py.erb
+
+# Max time in seconds that a celery task is allowed to run.  Prevents
+#   long running tasks from blocking the worker from running other tasks. 
+CELERYD_TASK_TIME_LIMIT = 55 * 60 
