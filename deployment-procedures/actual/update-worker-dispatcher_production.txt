@@ -51,6 +51,7 @@ iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 
 # Stop the processes
+sudo service celery-flower stop
 sudo service celery-beat stop
 sudo service celery-worker stop
 sudo service rabbitmq-server stop
@@ -161,6 +162,7 @@ cd /var/data/log
 tail -f *
 
 # Restart main processes in main terminal window while watching logs
+sudo service celery-flower stop
 sudo service celery-beat stop
 sudo service celery-worker stop
 sudo service rabbitmq-server stop
@@ -173,6 +175,7 @@ ps -ef | grep rabbit
 sudo service rabbitmq-server start
 sudo service celery-worker start
 sudo service celery-beat start
+sudo service celery-flower start
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # End of update the cli on the dispatcher (celery worker) box
