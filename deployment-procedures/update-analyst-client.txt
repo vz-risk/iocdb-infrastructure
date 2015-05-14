@@ -59,8 +59,8 @@ First, follow the instructions in ./update-provisioner.txt
 ssh <PROV-HOST>
 
 # Set environment variables
-export NODE_NAME="<DEST-HOST>"
-export NODE_IP="<DEST-IP>"
+export NODE_NAME="<DEST-HOST>" NODE_IP="<DEST-IP>"
+echo "$NODE_NAME / $NODE_IP"
 
 #------------------------------------------------------------------------
 # 3 - Modify the recipes for the provisioner to tailor it to your install

@@ -37,6 +37,11 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 # On the destination host
 ssh dispatcher-51
 
+# Take a simple baseline for later samity check
+iocdb --observable_values 1.1.1.1 --encoder summary
+iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
+iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+
 # Backup the /src directory: 
 #   Note: If you've done this once today, be careful that you don't overwrite 
 #         the prior backup. 
@@ -44,11 +49,6 @@ sudo mv /src /tmp/src-$(date +%Y%m%d)
 
 # Archive somewhere safe
 sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
-
-# Take a simple baseline for later samity check
-iocdb --observable_values 1.1.1.1 --encoder summary
-iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
-iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 
 # Stop the processes
 sudo service celery-flower stop
@@ -68,8 +68,8 @@ ps -ef | grep rabbit
 ssh iocdb-prov
 
 # Set environment variables
-export NODE_NAME="dispatcher-51"
-export NODE_IP="10.114.75.151"
+export NODE_NAME="dispatcher-51" NODE_IP="10.114.75.151"
+echo "$NODE_NAME / $NODE_IP"
 
 #------------------------------------------------------------------------
 # 3 - Modify the recipes for the provisioner to tailor it to your install

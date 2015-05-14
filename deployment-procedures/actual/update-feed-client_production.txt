@@ -64,8 +64,8 @@ iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 ssh iocdb-prov
 
 # Set environment variables
-export NODE_NAME="feed-client-63"
-export NODE_IP="10.114.75.163"
+export NODE_NAME="feed-client-63" NODE_IP="10.114.75.163"
+echo "$NODE_NAME / $NODE_IP"
 
 #------------------------------------------------------------------------
 # 3 - Modify the recipes for the provisioner to tailor it to your install
