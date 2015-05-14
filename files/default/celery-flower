@@ -16,16 +16,16 @@ PROC=celery
 PROC_DESC="Celery Flower"
 USER="iocdb_prov"
 START_DIR="/src/iocdb/iocdb"
-LOG_FILE="/var/data/log/celery-flower.log"
+LOG_FILE="/var/data/log/celery-flower"
 
 RETVAL=0
 
-START_COMMAND="celery -A dispatcher flower --logging=debug --log_file_prefix=$LOG_FILE"
+START_COMMAND="nohup celery -A dispatcher flower --logging=debug --log_file_prefix=$LOG_FILE.log > $LOG_FILE.nohup.log&"
 
 get_pid() {
-  PS=`ps aux | grep [c]elery | grep [f]lower1`
+  PS=`ps aux -u iocdb_prov | grep /usr/bin/[p]ython | grep [c]elery | grep [f]lower`
   set -- $PS
-  pid = $2
+  PID=$2
 }
 
 check_proc_running() {
