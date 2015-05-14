@@ -16,11 +16,11 @@ PROC=celery
 PROC_DESC="Celery Flower"
 USER="iocdb_prov"
 START_DIR="/src/iocdb/iocdb"
-LOG_FILE_PREFIX="/var/data/log/"
+LOG_FILE="/var/data/log/celery-flower.log"
 
 RETVAL=0
 
-START_COMMAND="celery -A dispatcher flower --logging=debug --log_file_prefix=$LOG_FILE_PREFIX"
+START_COMMAND="celery -A dispatcher flower --logging=debug --log_file_prefix=$LOG_FILE"
 
 get_pid() {
   PS=`ps aux | grep [c]elery | grep [f]lower1`

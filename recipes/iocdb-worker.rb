@@ -30,19 +30,6 @@ directory "/var/data/log" do
   mode '0775'
 end
 
-directory "/etc/celery-conf" do
-  owner 'root'
-  group 'root'
-  mode '0755'
-end
-
-template '/etc/celery-conf/celeryconfig.py' do
-  source "host-#{node['hostname']}/celeryconfig.py.erb"
-  owner 'root'
-  group 'root'
-  mode '0755'
-end
-
 directory "/var/data/incoming" do
   owner 'iocdb_prov'
   group 'iocdb_prov'
@@ -87,6 +74,16 @@ cookbook_file "celery-worker" do
   action :create
 end
 
+# add init script for celery flower
+cookbook_file "celery-flower" do
+  path '/etc/init.d/celery-flower'
+  backup 0
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
 execute 'start workers' do
   command 'service celery-worker start'
   user 'root'
@@ -94,5 +91,10 @@ end
 
 execute 'start beat' do
   command 'service celery-beat start'
+  user 'root'
+end
+
+execute 'start flower' do
+  command 'service celery-flower start'
   user 'root'
 end

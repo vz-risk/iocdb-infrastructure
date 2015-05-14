@@ -20,7 +20,7 @@ LOG_FILE="/var/data/log/celery-worker.log"
 PID_FILE="/var/data/run/celery-worker.pid"
 
 RETVAL=0
-START_COMMAND="celery multi start default -A dispatcher -c 8 -l DEBUG --maxtasksperchild=1 -Ofair -Q:default celery --config=/etc/celery-conf/celeryconfig.py --logfile=$LOG_FILE --pidfile=$PID_FILE"
+START_COMMAND="celery multi start default -A dispatcher -c 8 --time-limit=3300 -l DEBUG --maxtasksperchild=1 -Ofair -Q:default celery --logfile=$LOG_FILE --pidfile=$PID_FILE"
 STOP_COMMAND="celery multi stop default -A dispatcher -l DEBUG --pidfile=$PID_FILE"
 
 get_pid() {

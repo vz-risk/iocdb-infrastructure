@@ -21,7 +21,7 @@ PID_FILE="/var/data/run/celery-beat.pid"
 
 RETVAL=0
 
-START_COMMAND="celery -A dispatcher beat --config=/etc/celery-conf/celeryconfig.py -l DEBUG --logfile=$LOG_FILE --pidfile=$PID_FILE -s /var/data/run/beat-schedule --detach"
+START_COMMAND="celery -A dispatcher beat -l DEBUG --logfile=$LOG_FILE --pidfile=$PID_FILE -s /var/data/run/beat-schedule --detach"
 
 get_pid() {
   if [ -f $PID_FILE ]; then
