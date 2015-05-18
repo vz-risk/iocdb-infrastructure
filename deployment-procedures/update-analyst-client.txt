@@ -17,6 +17,10 @@
 #     master   (prod)
 #     dev-ci   (dev)
 #     master   (qa)
+#   <SSH-KEY>
+#     iocdb_prov_rsa     (prod)
+#     iocdb_nonprod_rsa  (dev)
+#     iocdb_nonprod_rsa  (qa)#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #------------------------------------------------------------------------
@@ -30,11 +34,38 @@ ssh <PROV-HOST>
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
 
 #------------------------------------------------------------------------
+# 0.2 Preparation on destination host
+#------------------------------------------------------------------------
+
+# On the feed client box
+ssh <DEST-HOST>
+
+# Verify you can reach the iocdb-staging server from iocdb_prov user and 
+#   root.  If this doesn't work the chef installation will fail as it will 
+#   be unable to access and deploy repository files.  If either of these 
+#   fail, copy the following files from the provisioner host into 
+#   the iocdb_prov and root accounts:
+#     ~iocdb_prov/.ssh/config
+#     ~iocdb_prov/.ssh/<SSH-KEY>
+
+## Test access as iocdb_prov user - Should log in without password prompt
+ssh iocdb-staging
+
+## Test access as root - Should log in without password prompt
+sudo su -
+[root]# ssh iocdb-staging
+
+#------------------------------------------------------------------------
 # 1 Backup important directories and files on the <DEST-HOST> box
 #------------------------------------------------------------------------
 
 # On the destination host
 ssh <DEST-HOST>
+
+# Take a simple baseline for later samity check
+iocdb --observable_values 1.1.1.1 --encoder summary
+iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
+iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 
 # Backup the /src directory:
 #   Note: If you've done this once today, be careful that you don't overwrite 
@@ -43,11 +74,6 @@ sudo mv /src /tmp/src-$(date +%Y%m%d)
 
 # Archive somewhere safe
 sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
-
-# Take a simple baseline for later samity check
-iocdb --observable_values 1.1.1.1 --encoder summary
-iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
-iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 
 #------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
@@ -79,7 +105,7 @@ cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json /opt/io
 # the new machine.  Run the following command to bootstrap chef onto the new 
 # host and create the node file.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
-knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/iocdb_nonprod_rsa
+knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/<SSH-KEY>
 
 # Modify the run-list to contain only "iocdb-infrastructure::iocdb-client"   
 vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
@@ -112,7 +138,7 @@ end
 
 # Run chef to update the iocdb-cli box
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
-knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_nonprod_rsa
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 
 # Note: These warnings are normal:
   WARNING: Local cookbook_path '/opt/iocdb_provisioner/iocdb-infrastructure/site-cookbooks' does not exist
