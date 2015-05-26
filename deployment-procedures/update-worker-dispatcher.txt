@@ -166,6 +166,9 @@ iocdb --observable_values 1.1.1.1
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary | wc
 
+# Check that the correct version of iocdb was installed
+iocdb --version
+
 #------------------------------------------------------------------------
 # 6 - Bounce the celery and rabbitmq processes
 #------------------------------------------------------------------------
