@@ -62,7 +62,7 @@ sudo su -
 # On the destination host
 ssh <DEST-HOST>
 
-# Take a simple baseline for later samity check
+# Take a simple baseline for later sanity check
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
@@ -79,7 +79,7 @@ sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 # 2 - Setup iocdb-prov environment
 #------------------------------------------------------------------------
 
-# on the provisioner host
+# On the provisioner host
 
 First, follow the instructions in ./update-provisioner.txt
 ssh <PROV-HOST>
@@ -118,19 +118,6 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
     "ipaddress": "<DEST-IP>"
   }
 }
-
-#Set the branch name to <BRANCH_NAME>
-#  e.g. master, dev-ci, etc..
-
-# edit the iocdb-client.rb file
-vi /opt/iocdb_provisioner/iocdb-infrastructure/recipes/iocdb-client.rb
-
-# Change the following git url so that it contains @<BRANCH_NAME>#egg=iocdb 
-#   (replace <BRANCH-NAME> with dev-ci or master)
-python_pip 'iocdb' do
-  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@<BRANCH-NAME>#egg=iocdb'
-  options '-e'
-end
 
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box

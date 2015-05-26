@@ -127,19 +127,6 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
   }
 }
 
-#Set the branch name to <BRANCH_NAME>
-#   e.g. master, dev-ci, etc..
-
-# edit the iocdb-client.rb file
-vi /opt/iocdb_provisioner/iocdb-infrastructure/recipes/iocdb-client.rb
-
-# Change the following git url so that it contains @<BRANCH_NAME>#egg=iocdb 
-#   (replace <BRANCH-NAME> with dev-ci or master)
-python_pip 'iocdb' do
-  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@<BRANCH-NAME>#egg=iocdb'
-  options '-e'
-end
-
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
 #------------------------------------------------------------------------
