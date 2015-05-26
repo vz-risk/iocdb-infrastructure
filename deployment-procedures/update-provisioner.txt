@@ -11,9 +11,42 @@
 #   <BUILD>: (The build number for the release being installed)
 #============================================================================
 
+# On the provisioning host.
+ssh <PROV-HOST>
+
+# Refresh the infrastructure repo to get the latest deployment procedures
+cd /staged-repos/iocdb-infrastructure.git
+git fetch --all
+
+# Update the recipes for the provisioner 
+cd /opt/iocdb_provisioner/iocdb-infrastructure
+git pull origin
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Option 1 - Update instructions (See option 2 to recreate)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#------------------------------------------------------------------
+# Refresh the deploment procedures
+#------------------------------------------------------------------
+# On the provisioning host.
+ssh <PROV-HOST>
+
+# Refresh the infrastructure repo to get the latest deployment procedures
+cd /staged-repos/iocdb-infrastructure.git
+git fetch --all
+
+# Update the recipes for the provisioner 
+cd /opt/iocdb_provisioner/iocdb-infrastructure
+git pull origin
+
+# Follow the refreshed deployment procedures, skipping this 
+#  refresh section section and starting in the next section.
+view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
+
+#------------------------------------------------------------------
+# Follow refreshed (most recent) update instructions
+#------------------------------------------------------------------
 
 # On the provisioning host.
 ssh <PROV-HOST>
@@ -33,18 +66,11 @@ sftp> cd /staged-repos/
 sftp> put iocdb-<VERSION>.tar.gz
 sftp> exit
 
-# Update each staged repo clone for the code being updated.  You will 
+# Update other staged repo clones for the code being updated.  You will 
 #   need to enter your github account username and password when prompted.  
-
-cd /staged-repos/iocdb-infrastructure.git
-git fetch --all
 
 cd /staged-repos/cookbook-elasticsearch.git
 git fetch --all
-
-# Update the recipes for the provisioner 
-cd /opt/iocdb_provisioner/iocdb-infrastructure
-git pull origin
 
 # Add the package to be installed to the files directory
 cp /staged-repos/iocdb-<VERSION>.tar.gz /opt/iocdb_provisioner/iocdb-infrastructure/files/default/
