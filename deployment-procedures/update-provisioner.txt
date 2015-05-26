@@ -14,14 +14,6 @@
 # On the provisioning host.
 ssh <PROV-HOST>
 
-# Refresh the infrastructure repo to get the latest deployment procedures
-cd /staged-repos/iocdb-infrastructure.git
-git fetch --all
-
-# Update the recipes for the provisioner 
-cd /opt/iocdb_provisioner/iocdb-infrastructure
-git pull origin
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Option 1 - Update instructions (See option 2 to recreate)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
