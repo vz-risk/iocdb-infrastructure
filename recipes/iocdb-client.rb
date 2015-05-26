@@ -33,8 +33,8 @@ directory "/src" do
   group 'iocdb_prov'
 end
 
-cookbook_file "iocdb-15.2.0b18.tar.gz" do
-  path '/tmp/iocdb-15.2.0b18.tar.gz'
+cookbook_file "iocdb-15.2.0b20.tar.gz" do
+  path '/tmp/iocdb-15.2.0b20.tar.gz'
   backup 0
   owner 'root'
   group 'root'
@@ -44,12 +44,12 @@ end
 
 execute "extract iocdb" do
   cwd "/src"
-  command "tar -xzvf /tmp/iocdb-15.2.0b18.tar.gz"
+  command "tar -xzvf /tmp/iocdb-15.2.0b20.tar.gz"
   user "root"
 end
 
 link "/src/iocdb" do
-  to "/src/iocdb-15.2.0b18"
+  to "/src/iocdb-15.2.0b20"
 end
 
 execute "chmod /src/iocdb to iocdb_prov" do
