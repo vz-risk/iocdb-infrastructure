@@ -29,25 +29,48 @@ apt_package "python-psycopg2" do
   action :install
 end
 
-python_pip 'iocdb' do
-  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@dev-ci#egg=iocdb'
-#  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@origin/master#egg=iocdb'
-  options '-e'
+directory "/src" do
+  group 'iocdb_prov'
+end
+
+cookbook_file "iocdb-15.2.0b18.tar.gz" do
+  path '/tmp/iocdb-15.2.0b18.tar.gz'
+  backup 0
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+execute "extract iocdb" do
+  cwd "/src"
+  command "tar -xzvf /tmp/iocdb-15.2.0b18.tar.gz"
+  user "root"
+end
+
+link "/src/iocdb" do
+  to "/src/iocdb-15.2.0b18"
 end
 
 execute "chmod /src/iocdb to iocdb_prov" do
-  cwd '/src/iocdb'
+  cwd "/src/iocdb"
   user "root"
   command "chown -R iocdb_prov:iocdb_prov /src/iocdb"
 end
 
-template '/src/iocdb/iocdb/data/settings.yaml' do
+template "/src/iocdb/iocdb/data/settings.yaml" do
   source "host-#{node['hostname']}/settings.yaml"
 end
 
 execute "install requirements" do
-  cwd '/src/iocdb'
+  cwd "/src/iocdb"
   user "root"
   command "pip install -r /src/iocdb/requirements.txt"
+end
+
+execute "Install iocdb" do
+  cwd "/src/iocdb"
+  user "root"
+  command "python setup.py install"
 end
 
