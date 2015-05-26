@@ -63,7 +63,7 @@ sudo su -
 # On the destination host
 ssh <DEST-HOST>
 
-# Take a simple baseline for later samity check
+# Take a simple baseline for later sanity check
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
@@ -163,6 +163,7 @@ python setup.py install
 # Test it
 iocdb --observable_values 1.1.1.1
 # make sure these are like baseline in /tmp/baseline*
+*** Does not currently work *** 
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary | wc
 

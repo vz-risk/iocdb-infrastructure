@@ -152,6 +152,7 @@ diff /tmp/src-$(date +%Y%m%d)/iocdb/iocdb/data/settings.yaml /src/iocdb/iocdb/da
 # Note: If you make a change, you may need to reinstall config to the python dist after updating.
 # Do this step only after modifying the config.
 cd /src/iocdb
+*** Does not currently work *** 
 python setup.py uninstall 
 python setup.py install
 
