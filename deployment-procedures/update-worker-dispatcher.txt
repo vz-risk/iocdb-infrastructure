@@ -13,10 +13,6 @@
 #     iocdb-prov       (prod)
 #     iocdb-prov-dev-1 (dev)
 #     iocdb-prov-qa-1  (qa)
-#   <BRANCH-NAME> 
-#     master   (prod)
-#     dev-ci   (dev)
-#     master   (qa)
 #   <SSH-KEY>
 #     iocdb_prov_rsa     (prod)
 #     iocdb_nonprod_rsa  (dev)

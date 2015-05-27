@@ -12,8 +12,8 @@
 #     feed-client-63   / 10.114.75.163   (prod) 
 #   <PROV-HOST>: (Provisioner host name)
 #     iocdb-prov       (prod)
-#   <BRANCH-NAME> 
-#     master   (prod)
+#   <SSH-KEY>
+#     iocdb_prov_rsa     (prod)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #------------------------------------------------------------------------
@@ -21,40 +21,53 @@
 #------------------------------------------------------------------------
 
 # on the provisioner host
-ssh <PROV-HOST>
+ssh iocdb-prov
 
 # Follow the instructions in ./update-provisioner.txt
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
 
 #------------------------------------------------------------------------
-# 0.2 Unlink existing iocdb link on the feed-client-63 box if it exists
+# 0.2 Preparation on destination host
 #------------------------------------------------------------------------
 
 # On the feed client box
 ssh feed-client-63
-ls -al /usr/local/bin/iocdb
-unlink /usr/local/bin/iocdb
+
+# Verify you can reach the iocdb-staging server from iocdb_prov user and 
+#   root.  If this doesn't work the chef installation will fail as it will 
+#   be unable to access and deploy repository files.  If either of these 
+#   fail, copy the following files from the provisioner host into 
+#   the iocdb_prov and root accounts:
+#     ~iocdb_prov/.ssh/config
+#     ~iocdb_prov/.ssh/iocdb_prov_rsa
+
+## Test access as iocdb_prov user - Should log in without password prompt
+ssh iocdb-staging
+
+## Test access as root - Should log in without password prompt
+sudo su -
+[root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the feed-client-63 box (if 
+# 1 Backup important directories and files on the <DEST-HOST> box (if 
 #   they exist)
 #------------------------------------------------------------------------
 
 # On the destination host
 ssh feed-client-63
 
-# Backup the /src directory: 
-#   Note: If you've done this once today, be careful that you don't overwrite 
-#         the prior backup. 
-sudo mv /src /tmp/src-$(date +%Y%m%d)
-
-# Archive somewhere safe
-sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
-
 # Take a simple baseline for later samity check
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+
+# Backup the /src directory: 
+#  Note: If you've done this once today, be careful that you don't overwrite 
+#        the prior backup. 
+sudo mv /src /tmp/src-$(date +%Y%m%d)
+
+# Archive somewhere safe
+sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 
 #------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
@@ -84,7 +97,7 @@ cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/feed-client-63.json /opt
 # the new machine.  Run the following command to bootstrap chef onto the new 
 # host and create the node file.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
-knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/iocdb_nonprod_rsa
+knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/iocdb_prov_rsa
 
 # Modify the run-list to contain only "iocdb-infrastructure::iocdb-client"
 vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/feed-client-63.json
@@ -98,26 +111,13 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/feed-client-63.json
   }
 }
 
-#Set the branch name to <BRANCH_NAME>
-#  e.g. master, dev-ci, etc..
-
-# edit the iocdb-client.rb file
-vi /opt/iocdb_provisioner/iocdb-infrastructure/recipes/iocdb-client.rb
-
-# Change the following git url so that it contains @<BRANCH_NAME>#egg=iocdb 
-#   (replace <BRANCH-NAME> with dev-ci or master)
-python_pip 'iocdb' do
-  package_name 'git+ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb.git@master#egg=iocdb'
-  options '-e'
-end
-
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
 #------------------------------------------------------------------------
 
 # Run chef to update the iocdb-cli box
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
-knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_nonprod_rsa
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_prov_rsa
 
 # Note: These warnings are normal:
   WARNING: Local cookbook_path '/opt/iocdb_provisioner/iocdb-infrastructure/site-cookbooks' does not exist
@@ -147,17 +147,14 @@ cd /src/iocdb
 python setup.py uninstall 
 python setup.py install
 
-# Note: If you make a change, you may need to reinstall config to the python dist after updating.
-# Do this step only after modifying the config.
-cd /src/iocdb
-python setup.py uninstall 
-python setup.py install
-
 # Test it
 iocdb --observable_values 1.1.1.1
 # make sure these are like baseline in /tmp/baseline*
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary | wc
+
+# Check that the correct version of iocdb was installed
+iocdb --version
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # End of update the cli on the dispatcher (celery worker) box

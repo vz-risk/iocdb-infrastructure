@@ -12,8 +12,6 @@
 #     feed-client-63   / 10.114.75.163   (prod) 
 #   <PROV-HOST>: (Provisioner host name)
 #     iocdb-prov       (prod)
-#   <BRANCH-NAME> 
-#     master   (prod)
 #   <SSH-KEY>
 #     iocdb_prov_rsa     (prod)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
