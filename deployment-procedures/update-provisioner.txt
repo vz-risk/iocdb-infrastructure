@@ -32,6 +32,16 @@ git fetch --all
 cd /opt/iocdb_provisioner/iocdb-infrastructure
 git pull origin
 
+# Note: Do this step if you get a message like:
+#     error: Your local changes to the following files would be overwritten by merge:
+#	 recipes/iocdb-client.rb
+#   This means the file was touched or modified somehow and git doesn't want to stomp 
+#   on your changes.  You need to delete and checkout the file then perform the git
+#   pull again.  For example:
+rm recipes/iocdb-client.rb
+git checkout recipes/iocdb-client.rb
+git pull origin
+
 # Follow the refreshed deployment procedures, skipping this 
 #  refresh section section and starting in the next section.
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
