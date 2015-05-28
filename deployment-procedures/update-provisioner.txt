@@ -19,7 +19,7 @@ ssh <PROV-HOST>
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #------------------------------------------------------------------
-# Refresh the deploment procedures
+# Refresh the deployment procedures
 #------------------------------------------------------------------
 # On the provisioning host.
 ssh <PROV-HOST>
@@ -47,26 +47,36 @@ git pull origin
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
 
 #------------------------------------------------------------------
-# Follow refreshed (most recent) update instructions
+# Stage the package to the desired env (production, qa or dev)
+#------------------------------------------------------------------
+
+1 - Log onto jenkins at http://153.39.107.101:8080/jenkins/
+2 - Select 'SSAPI Utilities' tab
+3 - Click the 'ssapi_iocdb_any_deploy-release_util' link
+4 - Select 'Build with parameters'
+5 - Follow the steps for development, qa or production
+
+    ## Production
+    5.1 - Enter the build number (format is bNNN)
+    5.2 - Destination: Production
+
+    ## QA
+    5.1 - Enter the build number (format is bNNN)
+    5.2 - Destination: QA
+
+    ## Development
+    5.1 - Enter the build number as 'nightly'
+    5.2 - Destination: Development
+
+6 - Select build button.  Package will be deployed from dev releases 
+    to the iocdb-prov box in the selected environment.
+
+#------------------------------------------------------------------
+# Refresh the provisioning host.
 #------------------------------------------------------------------
 
 # On the provisioning host.
 ssh <PROV-HOST>
-
-# Stage the release onto the staging server
-#  Fetch to your workstation then push to the staging server
-# From your workstation
-cd /tmp
-sftp USER@166.59.83.13
-sftp> cd /var/www/infra/pub/build/IOCDB/<BUILD>
-sftp> get iocdb-<VERSION>.tar.gz
-sftp> exit
-# Push to the provisioning server (Note: In prod your have push to 
-#   the jump server first then push to the prov server)
-sftp <PROV-HOST>
-sftp> cd /staged-repos/
-sftp> put iocdb-<VERSION>.tar.gz
-sftp> exit
 
 # Update other staged repo clones for the code being updated.  You will 
 #   need to enter your github account username and password when prompted.  
@@ -81,6 +91,9 @@ cp /staged-repos/iocdb-<VERSION>.tar.gz /opt/iocdb_provisioner/iocdb-infrastruct
 # Option 2 - Recreate the repos
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#------------------------------------------------------------------
+# create the staged-repos directory
+#------------------------------------------------------------------
 # On the provisioning host.
 ssh <PROV-HOST>
 
@@ -88,29 +101,42 @@ ssh <PROV-HOST>
 sudo mkdir /staged-repos
 sudo chown iocdb_prov:iocdb_prov /staged-repos
 
+#------------------------------------------------------------------
+# Stage the package to the desired env (production, qa or dev)
+#------------------------------------------------------------------
+
+1 - Log onto jenkins at http://153.39.107.101:8080/jenkins/
+2 - Select 'SSAPI Utilities' tab
+3 - Click the 'ssapi_iocdb_any_deploy-release_util' link
+4 - Select 'Build with parameters'
+5 - Follow the steps for development, qa or production
+
+    ## Production
+    5.1 - Enter the build number (format is bNNN)
+    5.2 - Destination: Production
+
+    ## QA
+    5.1 - Enter the build number (format is bNNN)
+    5.2 - Destination: QA
+
+    ## Development
+    5.1 - Enter the build number as 'nightly'
+    5.2 - Destination: Development
+
+6 - Select build button.  Package will be deployed from dev releases 
+    to the iocdb-prov box in the selected environment.
+
+#------------------------------------------------------------------
+# create the repos
+#------------------------------------------------------------------
+# On the provisioning host.
+ssh <PROV-HOST>
+
 # Clone the repos needed for provisioning - Use mirror repositories as no 
 # development work should ever be done from these repository clones.  You 
 # will need to enter your github account username and password when 
 # prompted
 cd /staged-repos
-
-# On the provisioning host.
-ssh <PROV-HOST>
-
-# Stage the release onto the staging server
-#  Fetch to your workstation then push to the staging server
-#  From your workstation
-cd /tmp
-sftp USER@166.59.83.13
-sftp> cd /var/www/infra/pub/build/IOCDB/<BUILD>
-sftp> get iocdb-<VERSION>.tar.gz
-sftp> exit
-# Push to the provisioning server (Note: In prod your have push to 
-#   the jump server first then push to the prov server)
-sftp <PROV-HOST>
-sftp> cd /staged-repos/
-sftp> put iocdb-<VERSION>.tar.gz
-sftp> exit
 
 # new way (mirror the repos)
 git clone --mirror https://github.com/vz-risk/iocdb-infrastructure.git
