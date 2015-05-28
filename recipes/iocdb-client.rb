@@ -10,6 +10,9 @@ execute 'add host iocdb-staging to known hosts if not already there' do
   returns 0
 end
 
+apt_package "python-setuptools" do
+  action :install
+end
 apt_package "python-lxml" do
   action :install
 end
@@ -68,9 +71,14 @@ execute "install requirements" do
   command "pip install -r /src/iocdb/requirements.txt"
 end
 
-execute "Install iocdb" do
+execute "install iocdb" do
   cwd "/src/iocdb"
   user "root"
   command "python setup.py install"
+end
+
+execute "initialize iocdb" do
+  user "iocdb_prov"
+  command "iocdb-init"
 end
 
