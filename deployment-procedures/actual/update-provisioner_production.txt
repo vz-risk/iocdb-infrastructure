@@ -48,7 +48,7 @@ ssh iocdb-prov
 # From your workstation
 cd /tmp
 sftp USER@166.59.83.13
-sftp> cd /var/www/infra/pub/build/IOCDB/b20
+sftp> cd /var/www/infra/pub/build/IOCDB/b22
 sftp> get iocdb-<VERSION>.tar.gz
 sftp> exit
 # Push to the provisioning server (Note: In prod your have push to 
@@ -92,7 +92,7 @@ ssh iocdb-prov
 #  From your workstation
 cd /tmp
 sftp USER@166.59.83.13
-sftp> cd /var/www/infra/pub/build/IOCDB/b20
+sftp> cd /var/www/infra/pub/build/IOCDB/b21
 sftp> get iocdb-<VERSION>.tar.gz
 sftp> exit
 # Push to the provisioning server (Note: In prod your have push to 
