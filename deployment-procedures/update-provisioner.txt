@@ -1,50 +1,17 @@
 #============================================================================
 # Used to update the provisioner.  Before the provisioner can install to any
-#   machines, an updated copy of the repositories from github should be 
-#   staged or updated to make the most current code available to the 
-#   provisioner.
+#   machines, the versioned iocdb-infrastructure package should be installed 
+#   to make the current release code available to the provisioner.
 #
 #   <PROV-HOST>: (Provisioner host name)
 #     iocdb-prov               (prod)
 #     iocdb-prov-dev-1         (dev)
 #     iocdb-prov-qa-1          (qa)
+#   <RELEASE>: (The release version being installed (e.g. 1.2.3b456 or 0.0.0.dev0)
 #   <BUILD>: (The build number for the release being installed)
 #============================================================================
 
-# On the provisioning host.
-ssh <PROV-HOST>
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Option 1 - Update instructions (See option 2 to recreate)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#------------------------------------------------------------------
-# Refresh the deployment procedures
-#------------------------------------------------------------------
-# On the provisioning host.
-ssh <PROV-HOST>
-
-# Refresh the infrastructure repo to get the latest deployment procedures
-cd /staged-repos/iocdb-infrastructure.git
-git fetch --all
-
-# Update the recipes for the provisioner 
-cd /opt/iocdb_provisioner/iocdb-infrastructure
-git pull origin
-
-# Note: Do this step if you get a message like:
-#     error: Your local changes to the following files would be overwritten by merge:
-#	 recipes/iocdb-client.rb
-#   This means the file was touched or modified somehow and git doesn't want to stomp 
-#   on your changes.  You need to delete and checkout the file then perform the git
-#   pull again.  For example:
-rm recipes/iocdb-client.rb
-git checkout recipes/iocdb-client.rb
-git pull origin
-
-# Follow the refreshed deployment procedures, skipping this 
-#  refresh section section and starting in the next section.
-view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
+# Assumes the kit has been built and is on dev-releases...
 
 #------------------------------------------------------------------
 # Stage the package to the desired env (production, qa or dev)
@@ -68,11 +35,50 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
     5.1 - Enter the build number as 'nightly'
     5.2 - Destination: Development
 
-6 - Select build button.  Package will be deployed from dev releases 
+6 - Select build button.  Package will be copied from dev releases 
     to the iocdb-prov box in the selected environment.
 
 #------------------------------------------------------------------
-# Refresh the provisioning host.
+# Backup the /opt/iocdb_provisioner/iocdb-infrastructure directory: 
+#   Note: If you've done this once today, be careful that you don't 
+#         overwrite the prior backup. 
+#------------------------------------------------------------------
+# On the provisioning host.
+ssh <PROV-HOST>
+
+sudo mv /opt/iocdb_provisioner/iocdb-infrastructure /tmp/iocdb-infrastructure-$(date +%Y%m%d)
+sudo tar -czvf /tmp/iocdb-infrastructure-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/iocdb-infrastructure-$(date +%Y%m%d)
+
+#------------------------------------------------------------------
+# Install the new iocdb-infrastructure
+#------------------------------------------------------------------
+# On the provisioning host.
+ssh <PROV-HOST>
+
+cd /opt/iocdb_provisioner/
+tar -xzvf /staged-repos/iocdb-infrastructure-<VERSION>.tar.gz
+
+#------------------------------------------------------------------
+# Restore any node files (or other modified files) that you have
+#   not checked in.  (Make sure your node files get checked in
+#   by providing them to dev if/when they change)/
+#------------------------------------------------------------------
+# If checksum's differ, the file was modified at some point.
+cksum /tmp/iocdb-infrastructure-$(date +%Y%m%d)/nodes/* > /tmp/old-nodes.txt
+cksum /opt/iocdb_provisioner/iocdb-infrastructure/nodes/*  > /tmp/new-nodes.txt
+diff /tmp/old-nodes.txt /tmp/new-nodes.txt
+
+#------------------------------------------------------------------
+# Follow refreshed deployment procedures (if they have changed).
+#------------------------------------------------------------------
+# On the provisioning host.
+ssh <PROV-HOST>
+
+# You've updated this doc out from under yourself.  Check for updates. 
+view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
+
+#------------------------------------------------------------------
+# Refresh any needed repositories
 #------------------------------------------------------------------
 
 # On the provisioning host.
@@ -83,69 +89,3 @@ ssh <PROV-HOST>
 
 cd /staged-repos/cookbook-elasticsearch.git
 git fetch --all
-
-# Add the package to be installed to the files directory
-cp /staged-repos/iocdb-<VERSION>.tar.gz /opt/iocdb_provisioner/iocdb-infrastructure/files/default/
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Option 2 - Recreate the repos
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#------------------------------------------------------------------
-# create the staged-repos directory
-#------------------------------------------------------------------
-# On the provisioning host.
-ssh <PROV-HOST>
-
-# Create a clone staging area
-sudo mkdir /staged-repos
-sudo chown iocdb_prov:iocdb_prov /staged-repos
-
-#------------------------------------------------------------------
-# Stage the package to the desired env (production, qa or dev)
-#------------------------------------------------------------------
-
-1 - Log onto jenkins at http://153.39.107.101:8080/jenkins/
-2 - Select 'SSAPI Utilities' tab
-3 - Click the 'ssapi_iocdb_any_deploy-release_util' link
-4 - Select 'Build with parameters'
-5 - Follow the steps for development, qa or production
-
-    ## Production
-    5.1 - Enter the build number (format is bNNN)
-    5.2 - Destination: Production
-
-    ## QA
-    5.1 - Enter the build number (format is bNNN)
-    5.2 - Destination: QA
-
-    ## Development
-    5.1 - Enter the build number as 'nightly'
-    5.2 - Destination: Development
-
-6 - Select build button.  Package will be deployed from dev releases 
-    to the iocdb-prov box in the selected environment.
-
-#------------------------------------------------------------------
-# create the repos
-#------------------------------------------------------------------
-# On the provisioning host.
-ssh <PROV-HOST>
-
-# Clone the repos needed for provisioning - Use mirror repositories as no 
-# development work should ever be done from these repository clones.  You 
-# will need to enter your github account username and password when 
-# prompted
-cd /staged-repos
-
-# new way (mirror the repos)
-git clone --mirror https://github.com/vz-risk/iocdb-infrastructure.git
-git clone --mirror https://git@github.com/elasticsearch/cookbook-elasticsearch.git
-
-# If needed, to re-create the clone in the iocdb_infrastructure 
-#   repository from /staged-repos to the /iocdb_provisioner directory.
-cd /opt/iocdb_provisioner
-git clone ssh://iocdb_prov@iocdb-staging/staged-repos/iocdb-infrastructure.git
-
-# Add the package to be installed to the files directory
-cp /staged-repos/iocdb-<VERSION>.tar.gz /opt/iocdb_provisioner/iocdb-infrastructure/files/default/
