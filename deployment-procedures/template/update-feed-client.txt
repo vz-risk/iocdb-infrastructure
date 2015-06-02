@@ -1,24 +1,3 @@
-#============================================================================
-# Used to update the dispatcher (celery worker) box 
-#============================================================================
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Update the dispatcher (celery worker) box
-#   Use these:
-#   <DEST-HOST> / <DEST-IP>: (Destination host name and IP)
-#     dispatcher-51   / 10.114.75.151   (prod) 
-#     iocdb-worker-dev-1 / 153.39.107.116  (dev and qa)
-#     iocdb-worker-qa-1  / 166.34.103.213  (qa)
-#   <PROV-HOST>: (Provisioner host name)
-#     iocdb-prov       (prod)
-#     iocdb-prov-dev-1 (dev)
-#     iocdb-prov-qa-1  (qa)
-#   <SSH-KEY>
-#     iocdb_prov_rsa     (prod)
-#     iocdb_nonprod_rsa  (dev)
-#     iocdb_nonprod_rsa  (qa)#
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #------------------------------------------------------------------------
 # 0 - Update the iocdb-prov box in preparation for install
 #------------------------------------------------------------------------
@@ -34,7 +13,7 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 #------------------------------------------------------------------------
 
 # On the feed client box
-ssh <DEST-HOST>
+ssh <FEED-HOST>
 
 # Note: This only has to be done once.  If it's been done before, you can 
 #       skip this step.
@@ -55,36 +34,29 @@ sudo su -
 [root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <DEST-HOST> box and
-#   stop the celery worker, celery beat and rabbitmq server processes
+# 1 Backup important directories and files on the <FEED-HOST> box (if 
+#   they exist)
 #------------------------------------------------------------------------
 
 # On the destination host
-ssh <DEST-HOST>
+ssh <FEED-HOST>
 
-# Take a simple baseline for later sanity check
+# Take a simple baseline for later samity check
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 cat /tmp/baseline-wc
 
 # Backup the /src directory: 
-#   Note: If you've done this once today, be careful that you don't overwrite 
-#         the prior backup. 
+#  Note: If you've done this once today, be careful that you don't overwrite 
+#        the prior backup. 
 sudo mv /src /tmp/src-$(date +%Y%m%d)
 
 # Archive somewhere safe
 sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 
-# Stop the processes
-sudo service celery-flower stop
-sudo service celery-beat stop
-sudo service celery-worker stop
-sudo service rabbitmq-server stop
-
-# Make sure they have stopped
-ps -ef | grep celery
-ps -ef | grep rabbit
+# Double check the host name and ip address (Used in the next sections)
+echo "`hostname` / `hostname -I`"
 
 #------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
@@ -94,18 +66,29 @@ ps -ef | grep rabbit
 ssh <PROV-HOST>
 
 # Set environment variables
-export NODE_NAME="<DEST-HOST>" NODE_IP="<DEST-IP>"
+export NODE_NAME="<FEED-HOST>" NODE_IP="<FEED-IP>"
+# This should match the host and ip address shown earlier
 echo "$NODE_NAME / $NODE_IP"
 
 #------------------------------------------------------------------------
-# 3 - Modify the recipes for the provisioner to tailor it to your install
+# 3 - Validate the recipes for the provisioner are correct
 #------------------------------------------------------------------------
 
-# Verify the node file points to the correct ip and node name and it's 
-#  runlist contains:
-#    "iocdb-infrastructure::rabbitmq",
-#    "iocdb-infrastructure::iocdb-worker"
-cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
+# Verify the node file points to the correct ip and node name and it's runlist is for iocdb-cli.
+#  Note: If this is a new node, you will want to create a new node file as described in the 
+#        installation procedures.
+# The runlist should contain only "iocdb-infrastructure::iocdb-client"   
+# 
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<FEED-HOST>.json
+
+{
+  "run_list": [
+    "iocdb-infrastructure::iocdb-client"
+  ],
+  "automatic": {
+    "ipaddress": "<FEED-IP>"
+  }
+}
 
 # If it is not correct, backup the file, modify it so that it is correct.
 #   Make sure to check it in to the iocdb-infrastrucure git repo.
@@ -118,19 +101,6 @@ cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
 ##   file make sure it gets checked in to the iocdb-infrastructure repo.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
 knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/<SSH-KEY>
-
-## Modify the run-list to contain only "iocdb-infrastructure::iocdb-client"
-vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<DEST-HOST>.json
-
-{
-  "run_list": [
-    "iocdb-infrastructure::rabbitmq",
-    "iocdb-infrastructure::iocdb-worker"
-  ],
-  "automatic": {
-    "ipaddress": "<DEST-IP>"
-  }
-}
 
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
@@ -150,7 +120,7 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 # 5 - Configure the new host
 #------------------------------------------------------------------------
 # On the new host
-ssh <DEST-HOST>
+ssh <FEED-HOST>
 
 # Compare differences - You'll need to add any new configuration back after restoring original below
 #   Update the configuration file manually if needed.  Note: If changes are needed, 
@@ -160,45 +130,18 @@ diff /tmp/src-$(date +%Y%m%d)/iocdb/iocdb/data/settings.yaml /src/iocdb/iocdb/da
 # Note: Only do this step if you've made a change to the config file.  
 #   If you have made any changes, you will need to reinstall iocdb to the python dist.
 cd /src/iocdb
-python setup.py uninstall <- Note this doesn't work - fix TBD
+python setup.py uninstall  <- Note this doesn't work - fix TBD
 python setup.py install
 
 # Test it
 iocdb --observable_values 1.1.1.1
 # make sure these are like baseline in /tmp/baseline*
-*** Does not currently work *** 
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary | wc
 
 # Check that the correct version of iocdb was installed
 iocdb --version
 
-#------------------------------------------------------------------------
-# 6 - Bounce the celery and rabbitmq processes
-#------------------------------------------------------------------------
-
-# open another terminal on the box and tail the logs
-cd /var/data/log
-tail -f *
-
-# Restart main processes in main terminal window while watching logs
-sudo service celery-flower stop
-sudo service celery-beat stop
-sudo service celery-worker stop
-sudo service rabbitmq-server stop
-
-# Make sure they have stopped
-ps -ef | grep celery
-ps -ef | grep rabbit
-
-# start em up
-sudo service rabbitmq-server start
-sudo service celery-worker start
-sudo service celery-beat start
-sudo service celery-flower start
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # End of update the cli on the dispatcher (celery worker) box
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-

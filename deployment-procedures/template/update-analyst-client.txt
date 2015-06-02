@@ -1,30 +1,9 @@
-#============================================================================
-# Used to update the cli box (analyst-client (prod) cli box (dev))
-#============================================================================
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Update the cli box
-#   Use these:
-#   <DEST-HOST> / <DEST-IP>: (Destination host name and IP)
-#     tac-client-48   / 10.114.75.148   (prod) 
-#     iocdb-cli-dev-1 / 153.39.107.117  (dev and qa)
-#     iocdb-cli-qa-1  / 166.34.103.215  (qa)
-#   <PROV-HOST>: (Provisioner host name)
-#     iocdb-prov       (prod)
-#     iocdb-prov-dev-1 (dev)
-#     iocdb-prov-qa-1  (qa)
-#   <SSH-KEY>
-#     iocdb_prov_rsa     (prod)
-#     iocdb_nonprod_rsa  (dev)
-#     iocdb_nonprod_rsa  (qa)#
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #------------------------------------------------------------------------
 # 0 - Update the iocdb-prov box in preparation for install
 #------------------------------------------------------------------------
 
 # on the provisioner host
-ssh iocdb-prov
+ssh <PROV-HOST>
 
 # Follow the instructions in ./update-provisioner.txt
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
@@ -34,15 +13,18 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 #------------------------------------------------------------------------
 
 # On the feed client box
-ssh tac-client-48
+ssh <ANALYST-HOST>
 
-# Verify you can reach the iocdb-staging server from iocdb_prov user and 
+# Note: This only has to be done once.  If it's been done before, you can 
+#       skip this step.
+# 
+#   Verify you can reach the iocdb-staging server from iocdb_prov user and 
 #   root.  If this doesn't work the chef installation will fail as it will 
 #   be unable to access and deploy repository files.  If either of these 
 #   fail, copy the following files from the provisioner host into 
 #   the iocdb_prov and root accounts:
 #     ~iocdb_prov/.ssh/config
-#     ~iocdb_prov/.ssh/iocdb_prov_rsa
+#     ~iocdb_prov/.ssh/<SSH-KEY>
 
 ## Test access as iocdb_prov user - Should log in without password prompt
 ssh iocdb-staging
@@ -52,16 +34,17 @@ sudo su -
 [root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <DEST-HOST> box
+# 1 Backup important directories and files on the <ANALYST-HOST> box
 #------------------------------------------------------------------------
 
 # On the destination host
-ssh tac-client-48
+ssh <ANALYST-HOST>
 
 # Take a simple baseline for later sanity check
 iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+cat /tmp/baseline-wc
 
 # Backup the /src directory:
 #   Note: If you've done this once today, be careful that you don't overwrite 
@@ -71,6 +54,9 @@ sudo mv /src /tmp/src-$(date +%Y%m%d)
 # Archive somewhere safe
 sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 
+# Double check the host name and ip address (Used in the next sections)
+echo "`hostname` / `hostname -I`"
+
 #------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
 #------------------------------------------------------------------------
@@ -78,42 +64,44 @@ sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 # On the provisioner host
 
 First, follow the instructions in ./update-provisioner.txt
-ssh iocdb-prov
+ssh <PROV-HOST>
 
 # Set environment variables
-export NODE_NAME="tac-client-48" NODE_IP="10.114.75.148"
+export NODE_NAME="<ANALYST-HOST>" NODE_IP="<ANALYST-IP>"
+# This should match the host and ip address shown earlier
 echo "$NODE_NAME / $NODE_IP"
 
 #------------------------------------------------------------------------
-# 3 - Modify the recipes for the provisioner to tailor it to your install
+# 3 - Validate the recipes for the provisioner are correct
 #------------------------------------------------------------------------
 
 # Verify the node file points to the correct ip and node name and it's runlist is for iocdb-cli.
 #   Note: If this is a new node, you will want to create a new node file as described in the 
 #         installation procedures.
+# The runlist should contain only "iocdb-infrastructure::iocdb-client"   
 # 
-cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json
-
-# Backup the existing node file (if it exists)
-cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json.orig
-
-# If this file doesn't yet exist, chef may not have yet been installed to 
-# the new machine.  Run the following command to bootstrap chef onto the new 
-# host and create the node file.
-cd /opt/iocdb_provisioner/iocdb-infrastructure
-knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/iocdb_prov_rsa
-
-# Modify the run-list to contain only "iocdb-infrastructure::iocdb-client"   
-vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<ANALYST-HOST>.json
 
 {
   "run_list": [
     "iocdb-infrastructure::iocdb-client"
   ],
   "automatic": {
-    "ipaddress": "10.114.75.148"
+    "ipaddress": "<ANALYST-IP>"
   }
 }
+
+# If it is not correct, backup the file, modify it so that it is correct.
+#   Make sure to check it in to the iocdb-infrastrucure git repo.
+
+# Note:  Do these steps only if the file does not exist yet.
+# 
+##   If this file doesn't yet exist, chef was likely not yet installed to 
+##   the new destination machine.  Run the following command to bootstrap 
+##   chef onto the new host and create the node file.  If you create the 
+##   file make sure it gets checked in to the iocdb-infrastructure repo.
+cd /opt/iocdb_provisioner/iocdb-infrastructure
+knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/<SSH-KEY>
 
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
@@ -121,7 +109,7 @@ vi /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json
 
 # Run chef to update the iocdb-cli box
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
-knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_prov_rsa
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 
 # Note: These warnings are normal:
   WARNING: Local cookbook_path '/opt/iocdb_provisioner/iocdb-infrastructure/site-cookbooks' does not exist
@@ -129,27 +117,21 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/iocdb_prov_rsa
   WARNING: Local data_bag_path 'data_bags' does not exist
   WARNING: Local environment_path 'environments' does not exist
 
-# restore the original node file
-cp -p /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json.orig /opt/iocdb_provisioner/iocdb-infrastructure/nodes/tac-client-48.json
-
 #------------------------------------------------------------------------
 # 5 - Configure the new host
 #------------------------------------------------------------------------
 # On the new host
-ssh tac-client-48
+ssh <ANALYST-HOST>
 
 # Compare differences - You'll need to add any new configuration back after restoring original below
+#   Update the configuration file manually if needed.  Note: If changes are needed, 
+#   they need to be checked into the iocdb-infrastructure.git repo (in the template dir).
 diff /tmp/src-$(date +%Y%m%d)/iocdb/iocdb/data/settings.yaml /src/iocdb/iocdb/data/settings.yaml
 
-# Update the configuration file manually if needed.  Note: config is automatically installed 
-#   now and should be correct. If not correct, a change needs to be made in the 
-#   iocdb-infrastructure.git repo and checked in to add the changes to the template.
-
-# Note: If you make a change, you may need to reinstall config to the python dist after updating.
-# Do this step only after modifying the config.
+# Note: Only do this step if you've made a change to the config file.  
+#   If you have made any changes, you will need to reinstall iocdb to the python dist.
 cd /src/iocdb
-*** Does not currently work *** 
-python setup.py uninstall 
+python setup.py uninstall  <- Note this doesn't work - fix TBD
 python setup.py install
 
 # Test it

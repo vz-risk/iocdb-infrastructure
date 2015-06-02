@@ -2,5 +2,32 @@
   "<META_PACKAGE_NAME>" : "iocdb",
   "<META_PACKAGE_VERSION_ID>" : "0.0.0",
   "<META_PACKAGE_BUILD_ID>" : ".dev0",
-  "<META_PACKAGE_VERSION_FULL>" : "iocdb-0.0.0.dev0"
+  "<META_PACKAGE_VERSION_FULL>" : "iocdb-0.0.0.dev0",
+
+  "<DEV-PROV-HOST>" : "iocdb-prov-dev-1",
+  "<DEV-SSH-KEY>" : "iocdb_nonprod_rsa",
+  "<DEV-ANALYST-HOST>" : "iocdb-cli-dev-1",
+  "<DEV-ANALYST-IP>" : "153.39.107.117",
+  "<DEV-FEED-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<DEV-FEED-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<DEV-DISPATCHER-HOST>" : "iocdb-worker-dev-1",
+  "<DEV-DISPATCHER-IP>" : "153.39.107.116",
+
+  "<QA-PROV-HOST>" : "iocdb-prov-qa-1",
+  "<QA-SSH-KEY>" : "iocdb_nonprod_rsa",
+  "<QA-ANALYST-HOST>" : "iocdb-cli-qa-1",
+  "<QA-ANALYST-IP>" : "166.34.103.215",
+  "<QA-FEED-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-FEED-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-DISPATCHER-HOST>" : "iocdb-worker-qa-1",
+  "<QA-DISPATCHER-IP>" : "166.34.103.213",
+
+  "<PROD-PROV-HOST>" : "iocdb-prov",
+  "<PROD-SSH-KEY>" : "iocdb_prov_rsa",
+  "<PROD-ANALYST-HOST>" : "tac-client-48",
+  "<PROD-ANALYST-IP>" : "10.114.75.148",
+  "<PROD-FEED-HOST>" : "feed-client-63",
+  "<PROD-FEED-IP>" : "10.114.75.163",
+  "<PROD-DISPATCHER-HOST>" : "dispatcher-51",
+  "<PROD-DISPATCHER-IP>" : "10.114.75.151"
 }

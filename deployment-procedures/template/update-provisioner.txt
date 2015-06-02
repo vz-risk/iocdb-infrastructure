@@ -1,16 +1,3 @@
-#============================================================================
-# Used to update the provisioner.  Before the provisioner can install to any
-#   machines, the versioned iocdb-infrastructure package should be installed 
-#   to make the current release code available to the provisioner.
-#
-#   <PROV-HOST>: (Provisioner host name)
-#     iocdb-prov               (prod)
-#     iocdb-prov-dev-1         (dev)
-#     iocdb-prov-qa-1          (qa)
-#   <RELEASE>: (The release version being installed (e.g. 1.2.3b456 or 0.0.0.dev0)
-#   <BUILD>: (The build number for the release being installed)
-#============================================================================
-
 # Assumes the kit has been built and is on dev-releases...
 
 #------------------------------------------------------------------
@@ -56,7 +43,7 @@ sudo tar -czvf /tmp/iocdb-infrastructure-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/iocd
 ssh <PROV-HOST>
 
 cd /opt/iocdb_provisioner/
-tar -xzvf /staged-repos/iocdb-infrastructure-<VERSION>.tar.gz
+tar -xzvf /staged-repos/iocdb-infrastructure-<META_PACKAGE_VERSION_ID><META_PACKAGE_BUILD_ID>.tar.gz
 
 #------------------------------------------------------------------
 # Restore any node files (or other modified files) that you have
@@ -64,8 +51,10 @@ tar -xzvf /staged-repos/iocdb-infrastructure-<VERSION>.tar.gz
 #   by providing them to dev if/when they change)/
 #------------------------------------------------------------------
 # If checksum's differ, the file was modified at some point.
-cksum /tmp/iocdb-infrastructure-$(date +%Y%m%d)/nodes/* > /tmp/old-nodes.txt
-cksum /opt/iocdb_provisioner/iocdb-infrastructure/nodes/*  > /tmp/new-nodes.txt
+cd /tmp/iocdb-infrastructure-$(date +%Y%m%d)/nodes/
+cksum * > /tmp/old-nodes.txt
+cd /opt/iocdb_provisioner/iocdb-infrastructure/nodes/
+cksum * > /tmp/new-nodes.txt
 diff /tmp/old-nodes.txt /tmp/new-nodes.txt
 
 #------------------------------------------------------------------
