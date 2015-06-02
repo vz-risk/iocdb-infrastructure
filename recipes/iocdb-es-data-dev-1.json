@@ -1,0 +1,10 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::elasticsearch-data-update"
+
+  ],
+  "automatic": {
+    "ipaddress": "153.39.107.33"
+  },
+    "envname": "iocdb-dev"
+}

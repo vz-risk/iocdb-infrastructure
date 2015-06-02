@@ -1,0 +1,9 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::elasticsearch-test"
+  ],
+  "automatic": {
+    "ipaddress": "153.39.107.114"
+  },
+  "envname": "iocdb-dev"
+}
