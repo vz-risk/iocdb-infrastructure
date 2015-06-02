@@ -1,0 +1,8 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::hadoop"
+  ],
+  "automatic": {
+    "ipaddress": "10.114.75.187"
+  }
+}

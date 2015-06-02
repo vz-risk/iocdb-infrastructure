@@ -1,0 +1,8 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::iocdb-client"
+  ],
+  "automatic": {
+    "ipaddress": "10.114.75.163"
+  }
+}

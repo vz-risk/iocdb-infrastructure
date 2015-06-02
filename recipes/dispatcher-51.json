@@ -1,0 +1,9 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::rabbitmq",
+    "iocdb-infrastructure::iocdb-worker"
+  ],
+  "automatic": {
+    "ipaddress": "10.114.75.151"
+  }
+}

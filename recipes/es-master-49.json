@@ -1,0 +1,9 @@
+{
+  "run_list": [
+    "iocdb-infrastructure::elasticsearch-master"
+  ],
+  "automatic": {
+    "ipaddress": "10.114.75.149"
+  },
+  "envname": "iocdb-yosemite"
+}
