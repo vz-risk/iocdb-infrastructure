@@ -77,8 +77,3 @@ execute "install iocdb" do
   command "python setup.py install"
 end
 
-execute "initialize iocdb" do
-  user "iocdb_prov"
-  command "iocdb-init"
-end
-
