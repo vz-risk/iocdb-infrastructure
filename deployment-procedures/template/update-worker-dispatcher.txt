@@ -117,10 +117,10 @@ cd /opt/iocdb_provisioner/iocdb-infrastructure
 knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/<SSH-KEY>
 
 #------------------------------------------------------------------------
-# 4 - Run chef to install the update to the iocdb-cli box
+# 4 - Run chef to install the update to the iocdb-worker box
 #------------------------------------------------------------------------
 
-# Run chef to update the iocdb-cli box
+# Run chef to update the iocdb-worker box
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
 knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 
