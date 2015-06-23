@@ -16,7 +16,7 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 # 0.2 Preparation on destination host
 #------------------------------------------------------------------------
 
-# On the feed client box
+# On the worker/dispatcher box
 ssh <DISPATCHER-HOST>
 
 # Note: This only has to be done once.  If it's been done before, you can 
@@ -139,12 +139,12 @@ ssh <DISPATCHER-HOST>
 # Compare differences - You'll need to add any new configuration back after restoring original below
 #   Update the configuration file manually if needed.  Note: If changes are needed, 
 #   they need to be checked into the iocdb-infrastructure.git repo (in the template dir).
-diff /tmp/src-$(date +%Y%m%d)/iocdb/iocdb/data/settings.yaml /src/iocdb/iocdb/data/settings.yaml
+diff /tmp/src-$(date +%Y%m%d)/iocdb-*/iocdb/data/settings.yaml /src/iocdb/iocdb/data/settings.yaml
 
 # Note: Only do this step if you've made a change to the config file.  
 #   If you have made any changes, you will need to reinstall iocdb to the python dist.
 cd /src/iocdb
-python setup.py uninstall <- Note this doesn't work - fix TBD
+# python setup.py uninstall <- Note this doesn't work - fix TBD
 python setup.py install
 
 # Test it
@@ -182,7 +182,5 @@ sudo service celery-beat start
 sudo service celery-flower start
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# End of update the cli on the dispatcher (celery worker) box
+# End of update the dispatcher (celery worker) box 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
