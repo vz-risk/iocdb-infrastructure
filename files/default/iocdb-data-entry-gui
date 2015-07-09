@@ -1,0 +1,100 @@
+#!/bin/sh
+#
+# /etc/init.d/iocdb-data-entry-gui
+#
+### BEGIN INIT INFO
+# Provides:          iocdb-data-entry-gui.py
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Manage the iocdb data entry gui
+# Description:       Manage the iocdb data entry gui
+### END INIT INFO
+
+PROC_DESC="IOCDB Data Entry GUI"
+USER="iocdb_prov"
+START_DIR="/opt/iocdb"
+NOHUP_LOG_FILE="/var/log/iocdb/iocdb-data-entry-gui.out"
+
+RETVAL=0
+
+START_COMMAND="nohup /usr/bin/python /opt/iocdb/iocdb-data-entry-gui.py &> $NOHUP_LOG_FILE&"
+
+get_pid() {
+  PS=`ps aux -u iocdb_prov | grep /usr/bin/[p]ython | grep /opt/iocdb/iocdb-data-entry-gui.py`
+  set -- $PS
+  PID=$2
+}
+
+check_proc_running() {
+  IS_RUNNING="false"
+  if [ "_$PID" != "_" ]; then
+    RESULT="`ps -p $PID | grep $PID`"
+    if [ "_$RESULT" != "_" ]; then
+      IS_RUNNING="true"
+    fi
+  fi
+}
+
+proc_start() {
+  get_pid
+  check_proc_running
+
+  if [ "_$IS_RUNNING" != "_true" ]; then
+     echo "Starting $PROC_DESC..."
+     su $USER -c "cd $START_DIR; $START_COMMAND"
+     RETVAL=$?
+  else
+    echo "Process $PID is already running"
+  fi
+}
+
+proc_stop() {
+  get_pid
+  check_proc_running
+
+  if [ "_$IS_RUNNING" = "_true" ]; then
+    echo "Stopping $PROC_DESC $PID..."
+
+    kill $PID      
+
+    # Wait up to 10 seconds
+    for idx in `seq 1 10`
+    do
+      sleep 1
+      check_proc_running
+      if [ "_$IS_RUNNING" != "_true" ]; then
+        break
+      fi
+    done
+
+    for idx in `seq 1 3`
+    do
+      sleep 1
+      check_proc_running
+      if [ "_$IS_RUNNING" != "_true" ]; then
+        break
+      else
+        kill -9 $PID      
+      fi
+    done
+  else
+    echo "$PROC_DESC is not running"
+  fi
+}
+
+case "$1" in
+  start)
+    proc_start
+    ;;
+  stop)
+    proc_stop
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit $RETVAL

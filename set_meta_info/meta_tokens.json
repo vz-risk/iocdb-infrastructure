@@ -12,6 +12,8 @@
   "<DEV-FEED-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<DEV-DISPATCHER-HOST>" : "iocdb-worker-dev-1",
   "<DEV-DISPATCHER-IP>" : "153.39.107.116",
+  "<DEV-JUMP-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<DEV-JUMP-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
 
   "<QA-PROV-HOST>" : "iocdb-prov-qa-1",
   "<QA-SSH-KEY>" : "iocdb_nonprod_rsa",
@@ -21,6 +23,8 @@
   "<QA-FEED-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<QA-DISPATCHER-HOST>" : "iocdb-worker-qa-1",
   "<QA-DISPATCHER-IP>" : "166.34.103.213",
+  "<QA-JUMP-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-JUMP-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
 
   "<PROD-PROV-HOST>" : "iocdb-prov",
   "<PROD-SSH-KEY>" : "iocdb_prov_rsa",
@@ -29,5 +33,7 @@
   "<PROD-FEED-HOST>" : "feed-client-63",
   "<PROD-FEED-IP>" : "10.114.75.163",
   "<PROD-DISPATCHER-HOST>" : "dispatcher-51",
-  "<PROD-DISPATCHER-IP>" : "10.114.75.151"
+  "<PROD-DISPATCHER-IP>" : "10.114.75.151",
+  "<PROD-JUMP-HOST>" : "tac-client-2222",
+  "<PROD-JUMP-IP>" : "10.114.75.189"
 }

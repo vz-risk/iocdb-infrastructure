@@ -100,7 +100,7 @@ cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<FEED-HOST>.json
 ##   chef onto the new host and create the node file.  If you create the 
 ##   file make sure it gets checked in to the iocdb-infrastructure repo.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
-knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 11 --identity-file ~/.ssh/<SSH-KEY>
+knife solo prepare $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
@@ -115,6 +115,22 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
   WARNING: Local role_path 'roles' does not exist
   WARNING: Local data_bag_path 'data_bags' does not exist
   WARNING: Local environment_path 'environments' does not exist
+
+#------------------------------------------------------------------------
+# 4.1 - Exception steps    (Only do these steps on error)
+# 
+# Note: If you received the following error, perform the these steps.
+#       Recipe Compile Error in /home/.../poise/libraries/default.rb ...
+#       Halite is not compatible with no_lazy_load false, ...
+#------------------------------------------------------------------------
+# On the destination host, remove the following directories:
+ssh <FEED-HOST>
+rm -fr ~iocdb_prov/.berkshelf
+sudo rm -fr /opt/chef/
+
+# Then repeat the knife solo steps as described above:
+#   knife solo prepare ... 
+#   knife solo cook ...
 
 #------------------------------------------------------------------------
 # 5 - Configure the new host
