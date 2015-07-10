@@ -18,7 +18,7 @@
   "<QA-PROV-HOST>" : "iocdb-prov-qa-1",
   "<QA-SSH-KEY>" : "iocdb_nonprod_rsa",
   "<QA-ANALYST-HOST>" : "iocdb-cli-qa-1",
-  "<QA-ANALYST-IP>" : "166.34.103.215",
+  "<QA-ANALYST-IP>" : "166.34.103.216",
   "<QA-FEED-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<QA-FEED-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<QA-DISPATCHER-HOST>" : "iocdb-worker-qa-1",
