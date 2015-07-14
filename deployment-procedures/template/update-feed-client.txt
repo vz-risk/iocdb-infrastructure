@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------
 
 # on the provisioner host
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 # Follow the instructions in ./update-provisioner.txt
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
@@ -13,7 +13,7 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 #------------------------------------------------------------------------
 
 # On the feed client box
-ssh <FEED-HOST>
+ssh <<ENV>-FEED-HOST>
 
 # Note: This only has to be done once.  If it's been done before, you can 
 #       skip this step.
@@ -24,7 +24,7 @@ ssh <FEED-HOST>
 #   fail, copy the following files from the provisioner host into 
 #   the iocdb_prov and root accounts:
 #     ~iocdb_prov/.ssh/config
-#     ~iocdb_prov/.ssh/<SSH-KEY>
+#     ~iocdb_prov/.ssh/<<ENV>-SSH-KEY>
 
 ## Test access as iocdb_prov user - Should log in without password prompt
 ssh iocdb-staging
@@ -34,12 +34,12 @@ sudo su -
 [root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <FEED-HOST> box (if 
+# 1 Backup important directories and files on the <<ENV>-FEED-HOST> box (if 
 #   they exist)
 #------------------------------------------------------------------------
 
 # On the destination host
-ssh <FEED-HOST>
+ssh <<ENV>-FEED-HOST>
 
 # Take a simple baseline for later samity check
 iocdb --observable_values 1.1.1.1 --encoder summary
@@ -63,10 +63,10 @@ echo "`hostname` / `hostname -I`"
 #------------------------------------------------------------------------
 
 # on the provisioner host
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 # Set environment variables
-export NODE_NAME="<FEED-HOST>" NODE_IP="<FEED-IP>"
+export NODE_NAME="<<ENV>-FEED-HOST>" NODE_IP="<<ENV>-FEED-IP>"
 # This should match the host and ip address shown earlier
 echo "$NODE_NAME / $NODE_IP"
 
@@ -79,14 +79,14 @@ echo "$NODE_NAME / $NODE_IP"
 #        installation procedures.
 # The runlist should contain only "iocdb-infrastructure::iocdb-client"   
 # 
-cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<FEED-HOST>.json
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-FEED-HOST>.json
 
 {
   "run_list": [
     "iocdb-infrastructure::iocdb-client"
   ],
   "automatic": {
-    "ipaddress": "<FEED-IP>"
+    "ipaddress": "<<ENV>-FEED-IP>"
   }
 }
 
@@ -100,7 +100,7 @@ cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<FEED-HOST>.json
 ##   chef onto the new host and create the node file.  If you create the 
 ##   file make sure it gets checked in to the iocdb-infrastructure repo.
 cd /opt/iocdb_provisioner/iocdb-infrastructure
-knife solo prepare $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
+knife solo prepare $NODE_IP -N $NODE_NAME --bootstrap-version 12 --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 
 #------------------------------------------------------------------------
 # 4 - Run chef to install the update to the iocdb-cli box
@@ -108,7 +108,7 @@ knife solo prepare $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 
 # Run chef to update the iocdb-cli box
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
-knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 
 # Note: These warnings are normal:
   WARNING: Local cookbook_path '/opt/iocdb_provisioner/iocdb-infrastructure/site-cookbooks' does not exist
@@ -124,7 +124,7 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<SSH-KEY>
 #       Halite is not compatible with no_lazy_load false, ...
 #------------------------------------------------------------------------
 # On the destination host, remove the following directories:
-ssh <FEED-HOST>
+ssh <<ENV>-FEED-HOST>
 rm -fr ~iocdb_prov/.berkshelf
 sudo rm -fr /opt/chef/
 
@@ -136,7 +136,7 @@ sudo rm -fr /opt/chef/
 # 5 - Configure the new host
 #------------------------------------------------------------------------
 # On the new host
-ssh <FEED-HOST>
+ssh <<ENV>-FEED-HOST>
 
 # Compare differences - You'll need to add any new configuration back after restoring original below
 #   Update the configuration file manually if needed.  Note: If changes are needed, 

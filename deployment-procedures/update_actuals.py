@@ -1,9 +1,9 @@
 import shutil
 import os
 
-qa_tokens = {"<": "<QA-"}
-dev_tokens = {"<": "<DEV-"}
-prod_tokens = {"<": "<PROD-"}
+qa_tokens = {"<ENV>": "QA"}
+dev_tokens = {"<ENV>": "DEV"}
+prod_tokens = {"<ENV>": "PROD"}
 
 qa_files = []
 dev_files = []

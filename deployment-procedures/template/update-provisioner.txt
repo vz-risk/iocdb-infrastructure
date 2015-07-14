@@ -31,7 +31,7 @@
 #         overwrite the prior backup. 
 #------------------------------------------------------------------
 # On the provisioning host.
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 sudo mv /opt/iocdb_provisioner/iocdb-infrastructure /tmp/iocdb-infrastructure-$(date +%Y%m%d)
 sudo tar -czvf /tmp/iocdb-infrastructure-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/iocdb-infrastructure-$(date +%Y%m%d)
@@ -40,7 +40,7 @@ sudo tar -czvf /tmp/iocdb-infrastructure-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/iocd
 # Install the new iocdb-infrastructure
 #------------------------------------------------------------------
 # On the provisioning host.
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 cd /opt/iocdb_provisioner/
 tar -xzvf /staged-repos/iocdb-infrastructure-<META_PACKAGE_VERSION_ID><META_PACKAGE_BUILD_ID>.tar.gz
@@ -61,7 +61,7 @@ diff /tmp/old-nodes.txt /tmp/new-nodes.txt
 # Follow refreshed deployment procedures (if they have changed).
 #------------------------------------------------------------------
 # On the provisioning host.
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 # You've updated this doc out from under yourself.  Check for updates. 
 view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-provisioner.txt
@@ -71,7 +71,7 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 #------------------------------------------------------------------
 
 # On the provisioning host.
-ssh <PROV-HOST>
+ssh <<ENV>-PROV-HOST>
 
 # Update other staged repo clones for the code being updated.  You will 
 #   need to enter your github account username and password when prompted.  
