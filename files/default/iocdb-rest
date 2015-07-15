@@ -1,0 +1,119 @@
+#!/bin/sh
+#
+# /etc/init.d/iocdb-rest
+#
+### BEGIN INIT INFO
+# Provides:          iocdb-rest
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Manage the iocdb rest data entry gui
+# Description:       Manage the iocdb rest data entry gui
+### END INIT INFO
+
+PROC_DESC="IOCDB REST Data Entry GUI"
+USER="iocdb_prov"
+PID_FILE="/tmp/iocdb-rest.pid"
+#NOHUP_LOG_FILE="/var/log/iocdb/iocdb-rest-nohup.out"
+
+RETVAL=0
+
+START_COMMAND="iocdb-rest start"
+STOP_COMMAND="iocdb-rest stop"
+
+get_pid() {
+  if [ -f ${PID_FILE} ]; then
+    PID="`cat $PID_FILE`"
+  else 
+    PS=`ps aux -u iocdb_prov | grep /usr/bin/[p]ython | grep /usr/local/bin/iocdb-rest`
+    set -- $PS
+    PID=$2
+  fi
+}
+
+check_proc_running() {
+  IS_RUNNING="false"
+  if [ "_$PID" != "_" ]; then
+    RESULT="`ps -p $PID | grep $PID`"
+    if [ "_$RESULT" != "_" ]; then
+      IS_RUNNING="true"
+    fi
+  fi
+}
+
+proc_start() {
+  get_pid
+  check_proc_running
+
+  if [ "_$IS_RUNNING" != "_true" ]; then
+     echo "Starting $PROC_DESC..."
+     su $USER -c "cd $START_DIR; $START_COMMAND"
+     RETVAL=$?
+  else
+    echo "Process $PID is already running"
+  fi
+}
+
+proc_stop() {
+  get_pid
+  check_proc_running
+
+  if [ "_$IS_RUNNING" = "_true" ]; then
+    echo "Stopping $PROC_DESC $PID..."
+
+    su $USER -c "$STOP_COMMAND"
+
+    for idx in `seq 1 3`
+    do
+      sleep 1
+      check_proc_running
+      if [ "_$IS_RUNNING" != "_true" ]; then
+        break
+      fi
+    done
+
+    for idx in `seq 1 3`
+    do
+      check_proc_running
+      if [ "_$IS_RUNNING" != "_true" ]; then
+        break
+      else
+        sleep 1
+        kill $PID      
+      fi
+    done
+
+    for idx in `seq 1 3`
+    do
+      check_proc_running
+      if [ "_$IS_RUNNING" != "_true" ]; then
+        break
+      else
+        sleep 1
+        kill -9 $PID      
+      fi
+    done
+  else
+    echo "$PROC_DESC is not running"
+  fi
+
+  if [ -f ${PID_FILE} ]; then
+    rm -f ${PID_FILE}
+  fi
+}
+
+case "$1" in
+  start)
+    proc_start
+    ;;
+  stop)
+    proc_stop
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit $RETVAL
