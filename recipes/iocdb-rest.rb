@@ -1,18 +1,18 @@
 include_recipe 'iocdb-infrastructure::iocdb-client'
 
-user 'iocdb_rest' do
-  system
+# iocdb-rest is now installed as part of the iocdb cli (iocdb-client). 
+
+# add init script for iocdb-rest
+cookbook_file "iocdb-rest" do
+  path '/etc/init.d/iocdb-rest'
+  backup 0
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
 end
 
-file '/var/log/iocdb-rest' do
-  owner 'iocdb_rest'
-end
-
-directory '/var/run/iocdb' do
-  owner 'iocdb_rest'
-end
-
-execute 'iocdb-rest' do
-  # TODO: I can't figure out why this won't daemonize w/o root
-  #user 'iocdb_rest'
+execute 'start iocdb-rest' do
+  command 'service iocdb-rest start'
+  user 'root'
 end
