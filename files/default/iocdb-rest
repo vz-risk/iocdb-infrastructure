@@ -15,12 +15,13 @@
 PROC_DESC="IOCDB REST Data Entry GUI"
 USER="iocdb_prov"
 PID_FILE="/tmp/iocdb-rest.pid"
-#NOHUP_LOG_FILE="/var/log/iocdb/iocdb-rest-nohup.out"
-
+LOG_FILE="/var/log/iocdb/iocdb-rest.log"
+ROLL_FILE="/var/log/iocdb/iocdb-rest-$(date +%Y%m%d_%H%M%S).log"
 RETVAL=0
 
 START_COMMAND="iocdb-rest start"
 STOP_COMMAND="iocdb-rest stop"
+ROLL_LOG_COMMAND="if [ -f ${LOG_FILE} ]; then mv ${LOG_FILE} ${ROLL_FILE}; fi"
 
 get_pid() {
   if [ -f ${PID_FILE} ]; then
@@ -48,6 +49,7 @@ proc_start() {
 
   if [ "_$IS_RUNNING" != "_true" ]; then
      echo "Starting $PROC_DESC..."
+     ${ROLL_LOG_COMMAND}
      su $USER -c "cd $START_DIR; $START_COMMAND"
      RETVAL=$?
   else
