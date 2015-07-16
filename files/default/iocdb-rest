@@ -49,7 +49,7 @@ proc_start() {
 
   if [ "_$IS_RUNNING" != "_true" ]; then
      echo "Starting $PROC_DESC..."
-     ${ROLL_LOG_COMMAND}
+     su root -c "${ROLL_LOG_COMMAND}"
      su $USER -c "cd $START_DIR; $START_COMMAND"
      RETVAL=$?
   else
