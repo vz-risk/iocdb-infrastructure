@@ -1,6 +1,7 @@
 [
   "recipes/iocdb-client.rb",
 
+  "deployment-procedures/dev_deploy-provisioner.bash",
   "deployment-procedures/dev_install-provisioner.txt",
   "deployment-procedures/dev_update-feed-client.txt",
   "deployment-procedures/dev_update-analyst-client.txt",
@@ -8,6 +9,7 @@
   "deployment-procedures/dev_update-provisioner.txt",
   "deployment-procedures/dev_update-jump.txt",
 
+  "deployment-procedures/qa_deploy-provisioner.bash",
   "deployment-procedures/qa_install-provisioner.txt",
   "deployment-procedures/qa_update-feed-client.txt",
   "deployment-procedures/qa_update-analyst-client.txt",
@@ -15,6 +17,7 @@
   "deployment-procedures/qa_update-provisioner.txt",
   "deployment-procedures/qa_update-jump.txt",
 
+  "deployment-procedures/prod_deploy-provisioner.bash",
   "deployment-procedures/prod_install-provisioner.txt",
   "deployment-procedures/prod_update-feed-client.txt",
   "deployment-procedures/prod_update-analyst-client.txt",

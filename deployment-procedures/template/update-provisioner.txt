@@ -23,7 +23,23 @@
     5.2 - Destination: Development
 
 6 - Select build button.  Package will be copied from dev releases 
-    to the iocdb-prov box in the selected environment.
+    to the iocdb-prov box in the selected environment and then the 
+    provisioner deployment script will be executed. 
+
+7 - Check the version.txt 
+      cat /opt/iocdb_provisioner/iocdb-infrastructure/version.txt
+    If the version is correct, you are done.  Continue to the next 
+    procedure.  
+
+
+
+
+
+***************************************************************
+ The following steps are kept for archival reasons and manual 
+ installation help only.  Do not follow these unless
+ the auto provisioner deployment script has failed.
+***************************************************************
 
 #------------------------------------------------------------------
 # Backup the /opt/iocdb_provisioner/iocdb-infrastructure directory: 

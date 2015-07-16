@@ -58,13 +58,6 @@ sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 echo "`hostname` / `hostname -I`"
 
 #------------------------------------------------------------------------
-# 1.1 Shutdown services on the <<ENV>-JUMP-HOST> box
-#------------------------------------------------------------------------
-# On the destination host
-ssh <<ENV>-JUMP-HOST>
-sudo service iocdb-data-entry-gui stop
-
-#------------------------------------------------------------------------
 # 2 - Setup iocdb-prov environment
 #------------------------------------------------------------------------
 
@@ -91,7 +84,7 @@ cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-JUMP-HOST>.json
 
 {
   "run_list": [
-    "iocdb-infrastructure::iocdb-client"
+    "iocdb-infrastructure::iocdb-rest"
   ],
   "automatic": {
     "ipaddress": "<<ENV>-JUMP-IP>"

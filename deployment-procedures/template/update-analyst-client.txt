@@ -84,7 +84,8 @@ cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-ANALYST-HOST>.json
 
 {
   "run_list": [
-    "iocdb-infrastructure::iocdb-client"
+    "iocdb-infrastructure::iocdb-client",
+    "iocdb-infrastructure::iocdb-rest"
   ],
   "automatic": {
     "ipaddress": "<<ENV>-ANALYST-IP>"

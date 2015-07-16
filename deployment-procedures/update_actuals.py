@@ -15,7 +15,7 @@ def copy_templates():
     destination = os.getcwd()
 
     for filename in source_files:
-        if filename.endswith(".txt"):
+        if filename.endswith(".txt") or filename.endswith(".bash"):
             source_file = os.path.join(template_dir, filename)
 
             destination_file = os.path.join(destination, "qa_{0}".format(filename))
