@@ -168,6 +168,17 @@ done
 pre_install
 install_provisioner
 
+MSG=""; loginfo
+MSG=""; loginfo
+MSG="---------------------------------------------------------------"; loginfo
+MSG="Provisioner was successfully installed"; loginfo
+MSG=""; loginfo
+MSG="Version info follows:"; loginfo
+MSG="`cat ${INFRA_HOME}/version.txt`"; loginfo
+MSG=""; loginfo
+MSG="---------------------------------------------------------------"; loginfo
+MSG=""; loginfo
+
 #=====================================================
 # Script end
 #=====================================================
