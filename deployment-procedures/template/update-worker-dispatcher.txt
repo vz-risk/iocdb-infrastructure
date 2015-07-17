@@ -15,12 +15,13 @@ ssh <<ENV>-PROV-HOST>
 ssh <<ENV>-DISPATCHER-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
 ssh <<ENV>-DISPATCHER-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 ssh <<ENV>-DISPATCHER-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
-ssh <<ENV>-DISPATCHER-HOST> cat /tmp/baseline-wc
+cat /tmp/baseline-wc
 
 # Set environment variables and make sure they match actual destination host
 export NODE_NAME="<<ENV>-DISPATCHER-HOST>" NODE_IP="<<ENV>-DISPATCHER-IP>"
-echo "$NODE_NAME / $NODE_IP"
-ssh <<ENV>-DISPATCHER-HOST> "`hostname` / `hostname -I`"
+echo "*** Make sure local and remote values match ***"
+echo "local:  $NODE_NAME / $NODE_IP"
+echo "remote: `ssh <<ENV>-DISPATCHER-HOST> hostname` / `ssh <<ENV>-DISPATCHER-HOST> hostname -I`"
 
 # Validate the node file
 cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-DISPATCHER-HOST>.json

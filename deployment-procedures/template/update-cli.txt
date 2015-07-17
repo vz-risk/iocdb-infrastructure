@@ -8,12 +8,13 @@ ssh <<ENV>-PROV-HOST>
 ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
 ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
-ssh <<ENV>-CLI-HOST> cat /tmp/baseline-wc
+cat /tmp/baseline-wc
 
 # Set environment variables and make sure they match actual destination host
 export NODE_NAME="<<ENV>-CLI-HOST>" NODE_IP="<<ENV>-CLI-IP>"
-echo "$NODE_NAME / $NODE_IP"
-ssh <<ENV>-CLI-HOST> "`hostname` / `hostname -I`"
+echo "*** Make sure local and remote values match ***"
+echo "local:  $NODE_NAME / $NODE_IP"
+echo "remote: `ssh <<ENV>-CLI-HOST> hostname` / `ssh <<ENV>-CLI-HOST> hostname -I`"
 
 # Validate the node file
 cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-CLI-HOST>.json
