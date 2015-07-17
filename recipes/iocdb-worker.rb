@@ -1,5 +1,20 @@
 include_recipe 'iocdb-infrastructure::iocdb-client'
 
+execute 'stop workers' do
+  command 'if [ -f /etc/init.d/celery-worker ]; then service celery-worker stop; fi'
+  user 'root'
+end
+
+execute 'stop beat' do
+  command 'if [ -f /etc/init.d/celery-beat ]; then service celery-beat stop; fi'
+  user 'root'
+end
+
+execute 'stop flower' do
+  command 'if [ -f /etc/init.d/celery-flower ]; then service celery-flower stop; fi'
+  user 'root'
+end
+
 user 'iocdb_worker' do
   system
 end
@@ -84,6 +99,11 @@ cookbook_file "celery-flower" do
   action :create
 end
 
+execute 'start rabbitmq' do
+  command 'service rabbitmq-server start'
+  user 'root'
+end
+
 execute 'start workers' do
   command 'service celery-worker start'
   user 'root'
@@ -98,3 +118,4 @@ execute 'start flower' do
   command 'service celery-flower start'
   user 'root'
 end
+

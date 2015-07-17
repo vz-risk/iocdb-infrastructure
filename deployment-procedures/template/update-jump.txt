@@ -1,3 +1,46 @@
+***************************************************************
+ Quick Install Guide
+***************************************************************
+# on the provisioner host
+ssh <<ENV>-PROV-HOST>
+
+# Get a baseline
+ssh <<ENV>-JUMP-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
+ssh <<ENV>-JUMP-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
+ssh <<ENV>-JUMP-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+ssh <<ENV>-JUMP-HOST> cat /tmp/baseline-wc
+
+# Set environment variables and make sure they match actual destination host
+export NODE_NAME="<<ENV>-JUMP-HOST>" NODE_IP="<<ENV>-JUMP-IP>"
+echo "$NODE_NAME / $NODE_IP"
+ssh <<ENV>-JUMP-HOST> "`hostname` / `hostname -I`"
+
+# Validate the node file
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-JUMP-HOST>.json
+
+# Run chef to perform the update
+cd /opt/iocdb_provisioner/iocdb-infrastructure/
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
+
+# Verify against baseline
+ssh <<ENV>-JUMP-HOST> iocdb --version
+ssh <<ENV>-JUMP-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
+ssh <<ENV>-JUMP-HOST> cat /tmp/baseline-wc
+
+# Make sure process(es) are running
+ssh <<ENV>-JUMP-HOST> ps -ef | grep iocdb-rest
+
+--- Installation is complete ---
+
+
+***************************************************************
+ Detailed Install Guide:
+
+ Use this for a new provisioner or if something went wrong 
+ in the quick install above.
+***************************************************************
+
+
 #------------------------------------------------------------------------
 # 0 - Update the iocdb-prov box in preparation for install
 #------------------------------------------------------------------------
@@ -34,7 +77,9 @@ sudo su -
 [root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <<ENV>-JUMP-HOST> box
+# 1 Take a baseline 
+#  Note: Archive backup is now performed by the chef scripts
+#        Also, iocdb-rest processes are now stopped by the chef scripts
 #------------------------------------------------------------------------
 
 # On the destination host
@@ -45,14 +90,6 @@ iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 cat /tmp/baseline-wc
-
-# Backup the /src directory:
-#   Note: If you've done this once today, be careful that you don't overwrite 
-#         the prior backup. 
-sudo mv /src /tmp/src-$(date +%Y%m%d)
-
-# Archive somewhere safe
-sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 
 # Double check the host name and ip address (Used in the next sections)
 echo "`hostname` / `hostname -I`"
@@ -78,12 +115,12 @@ echo "$NODE_NAME / $NODE_IP"
 # Verify the node file points to the correct ip and node name and it's runlist is for iocdb-cli.
 #   Note: If this is a new node, you will want to create a new node file as described in the 
 #         installation procedures.
-# The runlist should contain only "iocdb-infrastructure::iocdb-client"   
 # 
 cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-JUMP-HOST>.json
 
 {
   "run_list": [
+    "iocdb-infrastructure::iocdb-client",
     "iocdb-infrastructure::iocdb-rest"
   ],
   "automatic": {
@@ -158,25 +195,6 @@ iocdb --observable_values 1.1.1.1 --encoder summary | wc
 
 # Check that the correct version of iocdb was installed
 iocdb --version
-
-
-#------------------------------------------------------------------------
-# 5.1 - Start services if not already running
-#------------------------------------------------------------------------
-# Not quite working yet - until complete, do this manually with:
-nohup /usr/bin/python /opt/iocdb/rest.py &> /var/log/iocdb/rest-py-nohup.out&
-
-
-
-# This section TBD
-## On the destination host
-#ssh <<ENV>-JUMP-HOST>
-#
-## check if running
-#ps -ef | grep iocdb-data-entry-gui
-#
-## if not running then start the service
-#sudo service iocdb-data-entry-gui start
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # End of Update the cli box

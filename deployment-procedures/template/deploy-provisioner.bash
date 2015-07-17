@@ -4,12 +4,14 @@ RUN_USER="iocdb_prov"
 PROV_HOME="/opt/iocdb_provisioner"
 INFRA_HOME="${PROV_HOME}/iocdb-infrastructure"
 INFRA_BACKUP="/tmp/iocdb-infrastructure-$(date +%Y%m%d)"
+PROCS_HOME="${INFRA_HOME}/deployment-procedures"
 LOG_HOME=${PROV_HOME}/log
 LOG_FILE=${LOG_HOME}/deploy-provisioner-$(date +%Y%m%d_%H%M%S).log
 DSTAMP="$(date +%Y%m%d)"
 TSTAMP="$(date +%Y%m%d_%H%M%S)"
 PKG_NAME="iocdb-infrastructure-<META_PACKAGE_VERSION_ID><META_PACKAGE_BUILD_ID>.tar.gz"
 PKG_PATH="/staged-repos/${PKG_NAME}"
+PROV_HOST="`hostname`"
 
 loginfo()
 {
@@ -95,6 +97,18 @@ archive_provisioner()
   fi
 }
 
+derive_environment()
+{
+  if [ "${PROV_HOST}" == "<PROD-PROV-HOST>" ]; then
+    PROV_ENV="prod"
+  elif [ "${PROV_HOST}" == "<QA-PROV-HOST>" ]; then
+    PROV_ENV="qa"
+  else
+    PROV_ENV="dev"  
+
+  MSG="environment = ${PROV_ENV}"; loginfo
+}
+
 pre_install()
 {
   MSG=""; loginfo
@@ -109,8 +123,29 @@ pre_install()
   MSG="creating logfile ..."; loginfo
   create_log_file
 
+  MSG="deriving environment ..."; loginfo
+  derive_environment
+
   MSG="archiving old provisioner ..."; loginfo
   archive_provisioner
+}
+
+install_procedures()
+{
+  if [ ! -d ${PROCS_HOME}/orig ]; then
+    # move procs to reduce noise in ${PROCS_HOME}
+    mkdir ${PROCS_HOME}/orig/
+    mv *.txt ${PROCS_HOME}/orig/
+    mv *.bash ${PROCS_HOME}/orig/
+
+    # move and rename by stripping env
+    for curr in ${PROCS_HOME}/orig/${PROV_ENV}_*; do
+      name="`basename $curr`"
+      prefix="${PROV_ENV}_"
+      newfile=${name#$prefix}
+      cp $curr ${PROCS_HOME}/${newfile}
+    done
+  fi
 }
 
 install_provisioner() 
@@ -137,6 +172,7 @@ install_provisioner()
   echo "build        : <META_PACKAGE_BUILD_ID>" >> ${INFRA_HOME}/version.txt
   echo "package      : ${PKG_NAME}" >> ${INFRA_HOME}/version.txt
   echo "install-time : ${TSTAMP}" >> ${INFRA_HOME}/version.txt
+  echo "environment  : ${PROV_ENV}" >> ${INFRA_HOME}/version.txt
 }
 
 #=====================================================

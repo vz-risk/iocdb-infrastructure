@@ -5,27 +5,30 @@
 ssh <<ENV>-PROV-HOST>
 
 # Get a baseline
-ssh <<ENV>-ANALYST-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
-ssh <<ENV>-ANALYST-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
-ssh <<ENV>-ANALYST-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
-ssh <<ENV>-ANALYST-HOST> cat /tmp/baseline-wc
+ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
+ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
+ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+ssh <<ENV>-CLI-HOST> cat /tmp/baseline-wc
 
 # Set environment variables and make sure they match actual destination host
-export NODE_NAME="<<ENV>-ANALYST-HOST>" NODE_IP="<<ENV>-ANALYST-IP>"
+export NODE_NAME="<<ENV>-CLI-HOST>" NODE_IP="<<ENV>-CLI-IP>"
 echo "$NODE_NAME / $NODE_IP"
-ssh <<ENV>-ANALYST-HOST> "`hostname` / `hostname -I`"
+ssh <<ENV>-CLI-HOST> "`hostname` / `hostname -I`"
 
 # Validate the node file
-cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-ANALYST-HOST>.json
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-CLI-HOST>.json
 
 # Run chef to perform the update
 cd /opt/iocdb_provisioner/iocdb-infrastructure/
 knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 
 # Verify against baseline
-ssh <<ENV>-ANALYST-HOST> iocdb --version
-ssh <<ENV>-ANALYST-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
-ssh <<ENV>-ANALYST-HOST> cat /tmp/baseline-wc
+ssh <<ENV>-CLI-HOST> iocdb --version
+ssh <<ENV>-CLI-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
+ssh <<ENV>-CLI-HOST> cat /tmp/baseline-wc
+
+# Make sure process(es) are running
+ssh <<ENV>-JUMP-HOST> ps -ef | grep iocdb-rest
 
 --- Installation is complete ---
 
@@ -43,8 +46,8 @@ view /opt/iocdb_provisioner/iocdb-infrastructure/deployment-procedures/update-pr
 # 0.2 Preparation on destination host
 #------------------------------------------------------------------------
 
-# On the analyst client box
-ssh <<ENV>-ANALYST-HOST>
+# On the CLI box
+ssh <<ENV>-CLI-HOST>
 
 # Note: This only has to be done once.  If it's been done before, you can 
 #       skip this step.
@@ -67,10 +70,11 @@ sudo su -
 #------------------------------------------------------------------------
 # 1 Take a baseline 
 #  Note: Archive backup is now performed by the chef scripts
+#        Also, iocdb-rest processes are now stopped by the chef scripts
 #------------------------------------------------------------------------
 
 # On the destination host
-ssh <<ENV>-ANALYST-HOST>
+ssh <<ENV>-CLI-HOST>
 
 # Take a simple baseline for later sanity check
 iocdb --observable_values 1.1.1.1 --encoder summary
@@ -91,7 +95,7 @@ First, follow the instructions in ./update-provisioner.txt
 ssh <<ENV>-PROV-HOST>
 
 # Set environment variables
-export NODE_NAME="<<ENV>-ANALYST-HOST>" NODE_IP="<<ENV>-ANALYST-IP>"
+export NODE_NAME="<<ENV>-CLI-HOST>" NODE_IP="<<ENV>-CLI-IP>"
 # This should match the host and ip address shown earlier
 echo "$NODE_NAME / $NODE_IP"
 
@@ -102,16 +106,16 @@ echo "$NODE_NAME / $NODE_IP"
 # Verify the node file points to the correct ip and node name and it's runlist is for iocdb-cli.
 #   Note: If this is a new node, you will want to create a new node file as described in the 
 #         installation procedures.
-# The runlist should contain only "iocdb-infrastructure::iocdb-client"   
 # 
-cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-ANALYST-HOST>.json
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-CLI-HOST>.json
 
 {
   "run_list": [
-    "iocdb-infrastructure::iocdb-client"
+    "iocdb-infrastructure::iocdb-client",
+    "iocdb-infrastructure::iocdb-rest"
   ],
   "automatic": {
-    "ipaddress": "<<ENV>-ANALYST-IP>"
+    "ipaddress": "<<ENV>-CLI-IP>"
   }
 }
 
@@ -149,7 +153,7 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 #       Halite is not compatible with no_lazy_load false, ...
 #------------------------------------------------------------------------
 # On the destination host, remove the following directories:
-ssh <<ENV>-ANALYST-HOST>
+ssh <<ENV>-CLI-HOST>
 rm -fr ~iocdb_prov/.berkshelf
 sudo rm -fr /opt/chef/
 
@@ -161,7 +165,7 @@ sudo rm -fr /opt/chef/
 # 5 - Configure the new host
 #------------------------------------------------------------------------
 # On the new host
-ssh <<ENV>-ANALYST-HOST>
+ssh <<ENV>-CLI-HOST>
 
 # Compare differences - You'll need to add any new configuration back after restoring original below
 #   Update the configuration file manually if needed.  Note: If changes are needed, 

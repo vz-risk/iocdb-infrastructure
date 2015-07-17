@@ -1,9 +1,16 @@
-# TODO: requires root to have a github key. a better solution
-# would be an encrypted data bag with the key
-
 include_recipe 'iocdb-infrastructure::iocdb'
 include_recipe 'git'
 include_recipe 'python'
+
+execute 'remove todays iocdb backup if it exists' do
+  command 'rm -f /tmp/src-$(date +%Y%m%d)'
+  user 'root'
+end
+execute 'archive current iocdb installation' do
+  command 'if [ -d /src ]; then mv /src /tmp/src-$(date +%Y%m%d); tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d); fi'
+  user 'root'
+  returns 0
+end
 
 execute 'add host iocdb-staging to known hosts if not already there' do
   command 'ssh iocdb_prov@iocdb-staging -o StrictHostKeyChecking=no'

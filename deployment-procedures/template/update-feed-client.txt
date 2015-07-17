@@ -1,3 +1,42 @@
+***************************************************************
+ Quick Install Guide
+***************************************************************
+# on the provisioner host
+ssh <<ENV>-PROV-HOST>
+
+# Get a baseline
+ssh <<ENV>-FEED-HOST> iocdb --observable_values 1.1.1.1 --encoder summary
+ssh <<ENV>-FEED-HOST> iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
+ssh <<ENV>-FEED-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
+ssh <<ENV>-FEED-HOST> cat /tmp/baseline-wc
+
+# Set environment variables and make sure they match actual destination host
+export NODE_NAME="<<ENV>-FEED-HOST>" NODE_IP="<<ENV>-FEED-IP>"
+echo "$NODE_NAME / $NODE_IP"
+ssh <<ENV>-FEED-HOST> "`hostname` / `hostname -I`"
+
+# Validate the node file
+cat /opt/iocdb_provisioner/iocdb-infrastructure/nodes/<<ENV>-FEED-HOST>.json
+
+# Run chef to perform the update
+cd /opt/iocdb_provisioner/iocdb-infrastructure/
+knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
+
+# Verify against baseline
+ssh <<ENV>-FEED-HOST> iocdb --version
+ssh <<ENV>-FEED-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
+ssh <<ENV>-FEED-HOST> cat /tmp/baseline-wc
+
+--- Installation is complete ---
+
+
+***************************************************************
+ Detailed Install Guide:
+
+ Use this for a new provisioner or if something went wrong 
+ in the quick install above.
+***************************************************************
+
 #------------------------------------------------------------------------
 # 0 - Update the iocdb-prov box in preparation for install
 #------------------------------------------------------------------------
@@ -34,8 +73,8 @@ sudo su -
 [root]# ssh iocdb-staging
 
 #------------------------------------------------------------------------
-# 1 Backup important directories and files on the <<ENV>-FEED-HOST> box (if 
-#   they exist)
+# 1 Take a baseline 
+#  Note: Archive backup is now performed by the chef scripts
 #------------------------------------------------------------------------
 
 # On the destination host
@@ -46,14 +85,6 @@ iocdb --observable_values 1.1.1.1 --encoder summary
 iocdb --observable_values 1.1.1.1 --encoder summary > /tmp/baseline
 iocdb --observable_values 1.1.1.1 --encoder summary | wc > /tmp/baseline-wc
 cat /tmp/baseline-wc
-
-# Backup the /src directory: 
-#  Note: If you've done this once today, be careful that you don't overwrite 
-#        the prior backup. 
-sudo mv /src /tmp/src-$(date +%Y%m%d)
-
-# Archive somewhere safe
-sudo tar -czvf ~/src-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/src-$(date +%Y%m%d)
 
 # Double check the host name and ip address (Used in the next sections)
 echo "`hostname` / `hostname -I`"
