@@ -105,6 +105,7 @@ derive_environment()
     PROV_ENV="qa"
   else
     PROV_ENV="dev"  
+  fi
 
   MSG="environment = ${PROV_ENV}"; loginfo
 }
@@ -160,6 +161,9 @@ install_provisioner()
     MSG="Package ${PKG_PATH} not found"; logerr
     exit 1
   fi
+
+  # make the correct provisioning procedures available for the platform
+  install_procedures()
 
   # updating repositories
   cd /staged-repos/cookbook-elasticsearch.git
