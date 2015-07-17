@@ -3,7 +3,7 @@ include_recipe 'git'
 include_recipe 'python'
 
 execute 'remove todays iocdb backup if it exists' do
-  command 'rm -f /tmp/src-$(date +%Y%m%d)'
+  command 'rm -fr /tmp/src-$(date +%Y%m%d)'
   user 'root'
 end
 execute 'archive current iocdb installation' do
