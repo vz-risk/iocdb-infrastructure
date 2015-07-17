@@ -136,11 +136,12 @@ install_procedures()
   if [ ! -d ${PROCS_HOME}/orig ]; then
     # move procs to reduce noise in ${PROCS_HOME}
     mkdir ${PROCS_HOME}/orig/
-    mv *.txt ${PROCS_HOME}/orig/
-    mv *.bash ${PROCS_HOME}/orig/
+    mv ${PROCS_HOME}/*.txt ${PROCS_HOME}/orig/
+    mv ${PROCS_HOME}/*.bash ${PROCS_HOME}/orig/
+    mv ${PROCS_HOME}/*.orig ${PROCS_HOME}/orig/
 
     # move and rename by stripping env
-    for curr in ${PROCS_HOME}/orig/${PROV_ENV}_*; do
+    for curr in ${PROCS_HOME}/orig/${PROV_ENV}_*.bash ${PROCS_HOME}/orig/${PROV_ENV}_*.txt; do
       name="`basename $curr`"
       prefix="${PROV_ENV}_"
       newfile=${name#$prefix}
