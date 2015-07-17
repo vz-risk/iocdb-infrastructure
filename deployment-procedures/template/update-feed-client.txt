@@ -26,7 +26,7 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 # Verify against baseline
 ssh <<ENV>-FEED-HOST> iocdb --version
 ssh <<ENV>-FEED-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
-ssh <<ENV>-FEED-HOST> cat /tmp/baseline-wc
+cat /tmp/baseline-wc
 
 --- Installation is complete ---
 

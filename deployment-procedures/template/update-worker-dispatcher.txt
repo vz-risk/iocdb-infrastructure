@@ -33,7 +33,7 @@ knife solo cook $NODE_IP -N $NODE_NAME --identity-file ~/.ssh/<<ENV>-SSH-KEY>
 # Verify against baseline
 ssh <<ENV>-DISPATCHER-HOST> iocdb --version
 ssh <<ENV>-DISPATCHER-HOST> iocdb --observable_values 1.1.1.1 --encoder summary | wc
-ssh <<ENV>-DISPATCHER-HOST> cat /tmp/baseline-wc
+cat /tmp/baseline-wc
 
 # Make sure process(es) are running
 ssh <<ENV>-DISPATCHER-HOST> ps -ef | grep celery
