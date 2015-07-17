@@ -163,7 +163,7 @@ install_provisioner()
   fi
 
   # make the correct provisioning procedures available for the platform
-  install_procedures()
+  install_procedures
 
   # updating repositories
   cd /staged-repos/cookbook-elasticsearch.git
