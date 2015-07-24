@@ -16,6 +16,12 @@
   "<DEV-DISPATCHER-IP>" : "153.39.107.116",
   "<DEV-JUMP-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<DEV-JUMP-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<DEV-ES-MASTER-1-HOST>" : "iocdb-es-master-dev-1",
+  "<DEV-ES-MASTER-1-IP>" : "153.39.107.31",
+  "<DEV-ES-SNAPSHOT-HOST>" : "iocdb-es-dev-1",
+  "<DEV-ES-SNAPSHOT-IP>" : "153.39.107.114",
+  "<DEV-PROXY-HOST>" : "iocdb-proxy-dev-1",
+  "<DEV-PROXY-IP>" : "153.39.107.22",
 
   "<QA-PROV-HOST>" : "iocdb-prov-qa-1",
   "<QA-SSH-KEY>" : "iocdb_nonprod_rsa",
@@ -29,6 +35,12 @@
   "<QA-DISPATCHER-IP>" : "166.34.103.213",
   "<QA-JUMP-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
   "<QA-JUMP-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-ES-MASTER-1-HOST>" : "iocdb-es-qa-1",
+  "<QA-ES-MASTER-1-IP>" : "166.34.103.214",
+  "<QA-ES-SNAPSHOT-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-ES-SNAPSHOT-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-PROXY-HOST>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
+  "<QA-PROXY-IP>" : "NONE-CURRENTLY-IN-THIS ENVIRONMENT",
 
   "<PROD-PROV-HOST>" : "iocdb-prov",
   "<PROD-SSH-KEY>" : "iocdb_prov_rsa",
@@ -41,5 +53,11 @@
   "<PROD-DISPATCHER-HOST>" : "dispatcher-51",
   "<PROD-DISPATCHER-IP>" : "10.114.75.151",
   "<PROD-JUMP-HOST>" : "tac-client-2222",
-  "<PROD-JUMP-IP>" : "10.114.75.189"
+  "<PROD-JUMP-IP>" : "10.114.75.189",
+  "<PROD-ES-MASTER-1-HOST>" : "es-master-58",
+  "<PROD-ES-MASTER-1-IP>" : "10.114.75.158",
+  "<PROD-ES-SNAPSHOT-HOST>" : "es-snapshot-tst",
+  "<PROD-ES-SNAPSHOT-IP>" : "10.114.75.187",
+  "<PROD-PROXY-HOST>" : "iocdb-proxy",
+  "<PROD-PROXY-IP>" : "10.114.75.177"
 }

@@ -1,0 +1,13 @@
+# Warning: This config file was created by chef.  Changes are temporary and will
+#          be overwritten at next install.  
+#
+#          To make changes permanent modify
+#            iocdb-infrastructure.git 
+#              templates/default/host-<hostname>/iocdb_config.erb
+#              attributes/iocdb.rb
+
+debug: true
+message_handlers: [elasticsearch]
+elasticsearch_config:
+    hosts:  <%= node[:iocdb][:eshosts][:dev] %>
+repository: 'elasticsearch'
