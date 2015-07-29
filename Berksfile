@@ -2,6 +2,7 @@ source "https://supermarket.getchef.com"
 
 metadata
 
+cookbook 'apache2'
 cookbook 'hostnames'
 cookbook 'java'
 cookbook 'elasticsearch', git: 'ssh://iocdb_prov@iocdb-staging/staged-repos/cookbook-elasticsearch.git'

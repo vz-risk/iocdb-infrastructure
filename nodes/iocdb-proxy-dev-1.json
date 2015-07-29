@@ -1,5 +1,9 @@
 {
+  "apache": {
+    "default_site_enabled": true
+  },
   "run_list": [
+    "iocdb-infrastructure::iocdb-apache2",
     "iocdb-infrastructure::iocdb-client",
     "iocdb-infrastructure::iocdb-rest"
   ],
