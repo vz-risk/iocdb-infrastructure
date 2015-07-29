@@ -1,0 +1,20 @@
+NOTE: IN PROGRESS - THiS PROCESS IS NOT FINISHED
+#=============================================================================
+# Upgrade the elastic search cluster to another major version
+#   This procedure is unfinished and untested
+# 
+# NOTE: This process assumes you have properly set up an NFS snapshot area 
+#       See create-elasticsearch-nfs-snapshot-area.txt
+#=============================================================================
+
+#----------------------------------------------------------------------------
+# 1 - Backup (snapshot) the elastic search cluster
+#----------------------------------------------------------------------------
+
+Follow the 'create-elasticsearch-snapshot.txt' procedure
+
+#----------------------------------------------------------------------------
+# 2 - Backup all the elastic search files from each host
+#----------------------------------------------------------------------------
+Files:
+- Config: /usr/local/etc/elasticsearch/elasticsearch.yml

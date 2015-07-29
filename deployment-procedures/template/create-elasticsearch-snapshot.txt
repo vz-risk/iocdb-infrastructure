@@ -1,0 +1,148 @@
+NOTE: IN PROGRESS - THiS PROCESS IS NOT FINISHED
+#=============================================================================
+# Backup the elasticsearch cluster to the NFS mounted snapshot server
+#
+# NOTE: This process assumes you have properly set up an NFS snapshot area 
+#       See create-elasticsearch-nfs-snapshot-area.txt
+#
+# Links: 
+#  https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-
+#    snapshots.html
+#=============================================================================
+
+#----------------------------------------------------------------------------
+# 1 - Prepare the cluster
+#----------------------------------------------------------------------------
+
+# Make sure cluster health is green before starting.  Do not start backup 
+#  unless cluster is stable and in green status
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cluster/health?pretty
+
+# Get the snapshot repository name 
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot?pretty
+
+# If there is no snapshot repo, create one as follows:
+curl -XPUT 'http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup' -d '{
+    "type": "fs",
+    "settings": {
+        "location": "/tmp/nfs",
+        "compress": true
+    }
+}'
+
+# Get the snapshot repo info (where REPO-NAME is replaced with name from above)
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/REPO-NAME?pretty
+
+# Go to the NFS mounted snapshot server and ensure there is enough disk space 
+# to complete the snapshot
+ssh <<ENV>-ES-SNAPSHOT-IP>
+cat /etc/exports  # to see where the mount is (/tmp/nfs)
+dh -h /tmp/nfs
+
+# Determine the full list of elastic search nodes in the cluster.  
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cat/nodes?v
+
+# Get the host names
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cat/nodes | awk '{print $8; }'
+
+# If you want, you can get the ip addresses of each node if desired
+#  Note: If any of the returned host names don't work, you may need 
+#        to correct you ~/.ssh/config
+for adr in `curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cat/nodes | awk '{print $8; }'`; do
+  echo "$adr : `ssh $adr hostname -I`"
+done
+
+# Go to each of these ES hosts and validate that all are nfs mounted
+mount -l | grep /tmp/nfs
+cd /tmp/nfs
+df -h .
+ls -al 
+
+# Check the info for the registered repo once more
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup?pretty
+ 
+# Verify the repo (returns nodes where repo was verified or an error 
+#   on verification failure)
+curl -XPOST 'http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup/_verify'
+ 
+
+#----------------------------------------------------------------------------
+# 2 - Perform the backup
+#----------------------------------------------------------------------------
+
+# Do not start the snapshot unless cluster health is green
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cluster/health?pretty
+
+# Perform the snapshot (if everything was good above)
+## Option 1 - Production - Use the es-kopf UI tool
+  - Open in browser: http://204.51.115.16:9001/es-kopf/ > Snapshot tab
+  - snapshot_name: Choose a new name by incrementing the prior name's 
+                   number by 1.
+  - repository: my_backup
+  - ignore unavailable: False
+  - include global state: True
+  - Press create button to start the snapshot.
+
+## Option 2 - Command line curl (when es-kopf ui not available (e.g. dev))
+
+>>>
+
+# Perform the snapshot (give a unique name for each snapshot e.g. snapshot_1)
+curl -XPUT "localhost:9200/_snapshot/esdev_backup/snapshot_1?wait_for_completion=true"
+ 
+# Response should look something like:
+{"snapshot":{"snapshot":"snapshot_1","indices":["iocdb"],"state":"SUCCESS","start_time":"2015-04-02T16:16:29.530Z","start_time_in_millis":1427991389530,"end_time":"2015-04-02T16:16:38.305Z","end_time_in_millis":1427991398305,"duration_in_millis":8775,"failures":[],"shards":{"total":5,"failed":0,"successful":5}}}
+ 
+# List all snapshots in the repo
+curl -XGET "localhost:9200/_snapshot/esdev_backup/_all"
+ 
+# Check for info on the snapshot
+curl -XGET "localhost:9200/_snapshot/esdev_backup/snapshot_1"
+    
+#----------------------------------------------------------------------------
+# 3 - Monitor the cluster until backup is complete
+#   The snapshot process will take hours and maybe days to complete.  
+#   Monitor the progress as follows:
+#----------------------------------------------------------------------------
+
+#
+# --- Production only : Monitoring using es-kopf UI: ---
+#
+
+Open in browser: http://204.51.115.16:9001/es-kopf/
+  Snapshot tab
+    At bottom right, select repository: my_backup to see the progress.  
+      Wait for SUCCESS and a finished time for the snapshot.  
+    Cluster tab
+      Can monitor heap, disk and cpu usage from here and watch cluster health
+
+#
+# --- All environments:  Monitoring from the command line ---
+#      Note: Replace SNAPSHOT_NAME with the snapshot name 
+#      (e.g. snapshot_2)
+#
+
+# Watch disk space on snapshot server host
+ssh <<ENV>-ES-SNAPSHOT-HOST>
+cd /tmp/nfs
+ls  # you should see the snapshot name you started
+df -h . # Watch disk usage
+
+# Watch cluster health.  Should stay green.
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cluster/health?pretty
+ 
+# Check the snapshot status
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup/SNAPSHOT_NAME?pretty
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/_status?pretty
+ 
+# Other useful commands
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup/_SNAPSHOT_NAME?pretty
+curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup/SNAPSHOT_NAME/_status?pretty
+ 
+# On the snapshot box you can use this command to monitor progress
+while true; do 
+  df -h /tmp/nfs
+  curl http://<<ENV>-ES-MASTER-1-IP>:9200/_cluster/health?pretty | grep status
+  curl http://<<ENV>-ES-MASTER-1-IP>:9200/_snapshot/my_backup/SNAPSHOT_NAME/_status?pretty | grep stage
+  sleep 60 
+done

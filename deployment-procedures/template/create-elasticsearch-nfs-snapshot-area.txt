@@ -1,0 +1,60 @@
+NOTE: IN PROGRESS - THiS PROCESS IS NOT FINISHED
+#-----------------------------------------------------------
+# Install & Configure NFS Server
+#   Note: This has only been performed in dev to mimic prod.
+#         If this will be done again in prod, we might 
+#         want to choose something other than /tmp/nfs.
+#-----------------------------------------------------------
+ 
+# On the box to be nfs shared:
+ssh iocdb-es-dev-1
+ 
+## Check if nfs server is installed
+sudo dpkg -l | grep nfs-kernel-server
+ 
+## Install it if not installed
+sudo apt-get install nfs-kernel-server
+ 
+## Create the back directory to be exported (using /tmp/nfs to mimic prod)
+sudo mkdir -p /tmp/nfs
+sudo chmod 777 /tmp/nfs
+sudo chown elasticsearch:elasticsearch /tmp/nfs
+ 
+## Configure
+### /etc/exports - add the following line
+###     /tmp/nfs  *(rw,sync,no_root_squash)
+sudo vi /etc/exports
+/tmp/nfs  *(rw,sync,no_root_squash)
+ 
+## Bounce nfs server
+sudo service nfs-kernel-server restart
+ 
+#-----------------------------------------------------------
+# Install & configure the nfs clients
+#   Repeat these steps on all other boxes:
+#     iocdb-es-client-dev-1, iocdb-es-data-dev-1, iocdb-es-master-dev-1
+#-----------------------------------------------------------
+ 
+# on each client box
+ssh iocdb-es-client-dev-1
+ 
+## install
+sudo apt-get install nfs-common
+ 
+## create the dir
+sudo mkdir /tmp/nfs
+sudo chmod 777 /tmp/nfs
+sudo chown elasticsearch:elasticsearch /tmp/nfs
+ 
+## test the mount
+sudo mount 153.39.107.114:/tmp/nfs /tmp/nfs
+ 
+## unmount it
+sudo umount -l /tmp/nfs
+sudo mount
+ 
+## add to /etc/fstab
+153.39.107.114:/tmp/nfs /tmp/nfs        nfs    rw    0       0
+ 
+## test it
+sudo mount -a
