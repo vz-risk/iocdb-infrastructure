@@ -36,7 +36,6 @@
   <Directory <%= node['apache']['docroot_dir'] %>>
      WSGIProcessGroup iocdb
      WSGIApplicationGroup %{GLOBAL}
-     Order deny,allow
      Require all granted
   </Directory>
 </VirtualHost>
