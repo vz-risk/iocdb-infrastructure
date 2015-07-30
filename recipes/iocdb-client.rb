@@ -38,6 +38,9 @@ end
 apt_package "python-psycopg2" do
   action :install
 end
+apt_package "libgeoip-dev" do
+  action :install
+end
 
 directory "/src" do
   group 'iocdb_prov'

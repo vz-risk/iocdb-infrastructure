@@ -1,0 +1,42 @@
+# This chef template was copied and modified from cookbooks/apache2/-
+#  templates/default/ default-site.conf.erb.  The following mods were done:
+#    removed all <Directory> elements except for default
+#    removed ScriptAlias, Alias, <LocationMatch> and platform logic
+#    removed 
+#    add WSGIDaemonProcess iocdb user=iocdb_prov group=iocdb_prov threads=5
+#    add WSGIScriptAlias / /src/iocdb/iocdb/web/iocdb.wsgi
+#    add <Directory /src/iocdb/iocdb/web>
+#           WSGIProcessGroup iocdb
+#           WSGIApplicationGroup %{GLOBAL}
+#           Order deny,allow
+#           Require all granted
+#        </Directory>
+
+<VirtualHost *:<%= node['apache']['default_site_port'] %>>
+  ServerAdmin <%= node['apache']['contact'] %>
+
+  DocumentRoot <%= node['apache']['docroot_dir'] %>/
+  <Directory />
+    Options FollowSymLinks
+    AllowOverride None
+  </Directory>
+
+  ErrorLog <%= node['apache']['log_dir'] %>/<%= node['apache']['error_log'] %>
+
+  # Possible values include: debug, info, notice, warn, error, crit,
+  # alert, emerg.
+  LogLevel warn
+
+  CustomLog <%= node['apache']['log_dir'] %>/<%= node['apache']['access_log'] %> combined
+  ServerSignature On
+
+  WSGIDaemonProcess iocdb user=iocdb_prov group=iocdb_prov threads=5
+  WSGIScriptAlias / /src/iocdb/iocdb/web/iocdb.wsgi
+
+  <Directory <%= node['apache']['docroot_dir'] %>>
+     WSGIProcessGroup iocdb
+     WSGIApplicationGroup %{GLOBAL}
+     Order deny,allow
+     Require all granted
+  </Directory>
+</VirtualHost>
