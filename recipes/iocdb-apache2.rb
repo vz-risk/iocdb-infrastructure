@@ -13,7 +13,7 @@ apt_package "libapache2-mod-wsgi" do
 end
 
 include_recipe 'apache2'
-include_recipe 'apache::mod_wsgi'
+include_recipe 'apache2::mod_wsgi'
 
 #apache_module 'wsgi' do
 #  enable true
