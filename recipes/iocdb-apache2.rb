@@ -3,7 +3,7 @@ execute 'remove todays apache2 backup if it exists' do
   user 'root'
 end
 execute 'archive current apache2 installation' do
-  command 'if [ -d /src ]; then cp -p -R /etc/apache2 /tmp/apache2-$(date +%Y%m%d); tar -czvf ~/apache2-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/apache2-$(date +%Y%m%d); fi'
+  command 'if [ -d /etc/apache2 ]; then cp -p -R /etc/apache2 /tmp/apache2-$(date +%Y%m%d); tar -czvf ~/apache2-$(date +%Y%m%d_%H%M%S).tar.gz /tmp/apache2-$(date +%Y%m%d); fi'
   user 'root'
   returns 0
 end
@@ -31,13 +31,11 @@ template "#{node['apache']['dir']}/sites-available/iocdb-rest.conf" do
   notifies :restart, 'service[apache2]'
 end
 
-# create document root
-#directory '/src/iocdb/iocdb/web' do
-#  action :create
-#  recursive true
+# enable iocdb-rest
+#apache_site 'iocdb-rest.conf' do
+#  enable true
 #end
 
-# enable iocdb-rest
-apache_site 'iocdb-rest.conf' do
-  enable true
+link "#{node['apache']['dir']}/sites-enabled/iocdb-rest.conf" do
+  to "#{node['apache']['dir']}/sites-available/iocdb-rest.conf"
 end
