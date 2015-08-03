@@ -36,6 +36,7 @@
   <Directory <%= node['apache']['docroot_dir'] %>>
      WSGIProcessGroup iocdb
      WSGIApplicationGroup %{GLOBAL}
+     WSGIPassAuthorization On
      Require all granted
   </Directory>
 </VirtualHost>
