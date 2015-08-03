@@ -1,7 +1,7 @@
 {
   "apache": {
     "default_site_enabled": false,
-    "default_site_port": "80",
+    "default_site_port": "8080",
     "docroot_dir": "/src/iocdb/iocdb/web"
   },
   "run_list": [

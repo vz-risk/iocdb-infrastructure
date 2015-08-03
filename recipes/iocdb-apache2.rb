@@ -36,6 +36,12 @@ template "#{node['apache']['dir']}/sites-available/iocdb-rest.conf" do
   notifies :restart, 'service[apache2]'
 end
 
+# create apachei ports config
+template "#{node['apache']['dir']}/ports.conf" do
+  source 'ports.conf.erb'
+  notifies :restart, 'service[apache2]'
+end
+
 # enable iocdb-rest
 #apache_site 'iocdb-rest.conf' do
 #  enable true
