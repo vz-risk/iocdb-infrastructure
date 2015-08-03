@@ -7,6 +7,12 @@ execute 'archive current apache2 installation' do
   user 'root'
   returns 0
 end
+execute 'create iocdb data directory' do
+  command 'mkdir -p /opt/iocdb/data'
+  user 'root'
+  command 'chown -R iocdb_prov:iocdb_prov /opt/iocdb/data'
+  returns 0 
+end
 
 apt_package "libapache2-mod-wsgi" do
   action :install
