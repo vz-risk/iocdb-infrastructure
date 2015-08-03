@@ -8,9 +8,8 @@ execute 'archive current apache2 installation' do
   returns 0
 end
 execute 'create iocdb data directory' do
-  command 'mkdir -p /opt/iocdb/data'
+  command ' if [ ! -d /opt/iocdb/data ]; then mkdir -p /opt/iocdb/data; chown -R iocdb_prov:iocdb_prov /opt/iocdb; fi'
   user 'root'
-  command 'chown -R iocdb_prov:iocdb_prov /opt/iocdb/data'
   returns 0 
 end
 
